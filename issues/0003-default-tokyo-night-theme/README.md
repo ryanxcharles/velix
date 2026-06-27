@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-27"
+closed = "2026-06-27"
 +++
 
 # Issue 3: Default Tokyo Night theme
@@ -76,3 +77,17 @@ is designed, reviewed, approved, and committed under the issue workflow.
 
 - [Experiment 1: Use Tokyo Night as the true-color default](01-use-tokyonight-default.md) -
   **Pass**
+
+## Conclusion
+
+Issue 3 is solved by [Experiment 1](01-use-tokyonight-default.md). The provided
+Tokyo Night theme was already present in the correct bundled runtime location at
+`runtime/themes/tokyonight.toml`; the duplicate root `tokyonight.toml` was
+removed from the worktree.
+
+Velix now uses Tokyo Night as the default theme for true-color terminals via
+`Loader::default_theme(true)`. Non-true-color terminals still use
+`base16_default`, and if the bundled Tokyo Night theme cannot be loaded, Velix
+falls back to the embedded `default` theme without panicking.
+
+Explicit user theme configuration still takes precedence over the default path.
