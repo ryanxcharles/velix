@@ -83,6 +83,11 @@ fn vim_profile_maps_lazyvim_workflow_aliases() {
     assert_normal_command(&config, "<space>/", MappableCommand::global_search);
     assert_normal_command(&config, "H", MappableCommand::goto_previous_buffer);
     assert_normal_command(&config, "L", MappableCommand::goto_next_buffer);
+    assert_normal_command(&config, "[b", MappableCommand::goto_previous_buffer);
+    assert_normal_command(&config, "]b", MappableCommand::goto_next_buffer);
+    assert_normal_command(&config, "[h", MappableCommand::goto_prev_change);
+    assert_normal_command(&config, "]h", MappableCommand::goto_next_change);
+    assert_normal_command(&config, "<space>,", MappableCommand::buffer_picker);
     assert_normal_command(&config, "<space>bb", MappableCommand::buffer_picker);
     assert_normal_command(&config, "[d", MappableCommand::goto_prev_diag);
     assert_normal_command(&config, "]d", MappableCommand::goto_next_diag);
@@ -90,6 +95,7 @@ fn vim_profile_maps_lazyvim_workflow_aliases() {
     assert_normal_command(&config, "gd", MappableCommand::goto_definition);
     assert_normal_command(&config, "gr", MappableCommand::goto_reference);
     assert_normal_command(&config, "<space>a", MappableCommand::code_action);
+    assert_normal_command(&config, "<space>ca", MappableCommand::code_action);
     assert_normal_command(
         &config,
         "<space>ss",
@@ -102,6 +108,8 @@ fn vim_profile_maps_lazyvim_workflow_aliases() {
     assert_normal_command(&config, "<C-j>", MappableCommand::jump_view_down);
     assert_normal_command(&config, "<C-k>", MappableCommand::jump_view_up);
     assert_normal_command(&config, "<C-l>", MappableCommand::jump_view_right);
+    assert_normal_command(&config, "<space>-", MappableCommand::hsplit);
+    assert_normal_command(&config, "<space>|", MappableCommand::vsplit);
     assert_normal_command(&config, "<space>wd", MappableCommand::wclose);
 }
 

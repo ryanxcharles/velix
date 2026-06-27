@@ -81,3 +81,50 @@ Result:
 - The reviewer confirmed that every proposed alias has local LazyVim source
   evidence, existing Velix commands, concrete verification, and documented
   semantic handling for `[h`/`]h`.
+
+## Result
+
+**Result:** Pass
+
+Implemented the exact LazyVim alias batch without adding external plugin
+features.
+
+Changes made:
+
+- Added `[b` and `]b` aliases for previous/next buffer.
+- Added `<space>,` for the buffer picker.
+- Added `<space>ca` for code actions while keeping existing `<space>a`.
+- Added `[h` and `]h` aliases to Velix previous/next change navigation, with
+  documentation that this differs from LazyVim's Gitsigns hunk command.
+- Added `<space>-` and `<space>|` aliases for horizontal and vertical splits.
+- Extended Vim-profile keymap assertions and added Experiment 2 rows to
+  `audit.md`.
+- Updated the Vim-profile docs with the new aliases and their semantic
+  difference.
+
+Verification run:
+
+- `cargo test -p helix-term --features integration --test integration vim_profile`
+  - passed: 11 tests.
+- `cargo test -p helix-term keymap` - passed: 13 tests.
+- `cargo test -p helix-term config` - passed: 6 tests.
+- `cargo fmt --check` - passed.
+- `prettier --check --prose-wrap always --print-width 80 issues/0004-vim-lazyvim-keybinding-audit/README.md issues/0004-vim-lazyvim-keybinding-audit/02-add-exact-lazyvim-workflow-aliases.md issues/0004-vim-lazyvim-keybinding-audit/audit.md book/src/vim-profile.md`
+  - passed.
+
+Completion review:
+
+- Reviewer: `Maxwell` via adversarial-review subagent.
+- Final verdict: `APPROVED`.
+- Findings: none.
+
+## Conclusion
+
+Velix now supports this batch of exact LazyVim key spellings where direct Velix
+commands already existed. The main tradeoff remains `[h`/`]h`: the keys now work
+as aliases, but they target Velix change navigation rather than Gitsigns hunk
+state because Velix has no Gitsigns command surface.
+
+The next experiment should audit another focused batch, preferably either
+LazyVim save/quit/UI toggles with explicit unsupported classifications, or the
+next core Vim grammar gap such as operator-pending motion forms.

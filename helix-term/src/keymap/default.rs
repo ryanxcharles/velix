@@ -428,6 +428,14 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "C-j" => jump_view_down,
                 "C-k" => jump_view_up,
                 "C-l" => jump_view_right,
+                "[" => { "Vim previous"
+                    "b" => goto_previous_buffer,
+                    "h" => goto_prev_change,
+                },
+                "]" => { "Vim next"
+                    "b" => goto_next_buffer,
+                    "h" => goto_next_change,
+                },
                 "d" => { "Vim delete"
                     "d" => [extend_to_line_bounds, delete_selection],
                 },
@@ -439,7 +447,10 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 },
                 "space" => { "Vim leader"
                     "space" => file_picker,
+                    "," => buffer_picker,
                     "/" => global_search,
+                    "-" => hsplit,
+                    "|" => vsplit,
                     "f" => { "Find"
                         "f" => file_picker,
                         "F" => file_picker_in_current_directory,
@@ -453,6 +464,9 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                     "x" => { "Diagnostics"
                         "x" => diagnostics_picker,
                         "X" => workspace_diagnostics_picker,
+                    },
+                    "c" => { "Code"
+                        "a" => code_action,
                     },
                     "s" => { "Symbols"
                         "s" => lsp_or_syntax_symbol_picker,

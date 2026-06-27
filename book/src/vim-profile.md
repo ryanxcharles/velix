@@ -53,6 +53,8 @@ for common LazyVim-style commands when Velix already has a direct command:
 | `Space f F`       | File picker in current directory |
 | `Space f g`       | Changed-file picker              |
 | `H/L`             | Previous/next buffer             |
+| `[b` / `]b`       | Previous/next buffer             |
+| `Space ,`         | Buffer picker                    |
 | `Space b b`       | Buffer picker                    |
 | `Space b p/n`     | Previous/next buffer             |
 | `[d` / `]d`       | Previous/next diagnostic         |
@@ -60,10 +62,14 @@ for common LazyVim-style commands when Velix already has a direct command:
 | `Space x X`       | Workspace diagnostics picker     |
 | `gd` / `gr`       | Go to definition/reference       |
 | `Space a`         | Code action                      |
+| `Space c a`       | Code action                      |
 | `Space s s`       | Document symbols                 |
 | `Space s S`       | Workspace symbols                |
+| `[h` / `]h`       | Previous/next change             |
 | `Space g g`       | Changed-file picker              |
 | `C-h/j/k/l`       | Move between windows             |
+| `Space -`         | Horizontal split                 |
+| `Space \|`        | Vertical split                   |
 | `Space w d`       | Close window                     |
 | `Space w s/v`     | Horizontal/vertical split        |
 | `Space w h/j/k/l` | Move between windows             |
@@ -83,7 +89,8 @@ Important first-slice differences:
 - Paste uses Helix register semantics. Exact Vim linewise versus characterwise
   paste fidelity is deferred.
 - `[g` and `]g` keep Helix/Velix change navigation. LazyVim's comparable
-  Gitsigns hunk navigation uses `[h` and `]h`, which is deferred.
+  Gitsigns hunk navigation uses `[h` and `]h`; Velix maps those aliases to the
+  same change navigation because it has no Gitsigns hunk command.
 - Multiple selections are preserved where Helix commands naturally support them.
 
 ## Deferred
