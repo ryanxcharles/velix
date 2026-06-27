@@ -133,3 +133,58 @@ owns each binding.
   spec.
 
 **Final verdict:** Approved. No Required findings remained.
+
+## Result
+
+**Result:** Pass
+
+Created
+`issues/0001-vim-keybinding-research/vim-lazyvim-compatibility-matrix.md`. The
+matrix recommends starting Velix with a named `vim` keymap profile plus a small
+explicit Vim grammar/state slice, rather than replacing Helix defaults or trying
+to model all Vim behavior as keymap remaps.
+
+The result classifies core Vim editing and LazyVim workflow bindings using
+two-sided local evidence: Neovim/LazyVim source behavior on one side and
+Velix/Helix implementation evidence on the other. It identifies a concrete next
+implementation slice: add profile selection, bind low-risk standalone motions
+and LazyVim workflow aliases, and prove a minimal linewise operator slice for
+`dd`, `yy`, and `cc`.
+
+Verification completed:
+
+- Confirmed the result file contains all six required sections.
+- Confirmed non-`Deferred` classifications cite both external behavior evidence
+  and Velix/Helix implementation evidence, or explain the limitation.
+- Confirmed the next code experiment and test plan are stated.
+- Ran markdown formatting with `prettier`.
+- Regenerated `issues/README.md` with `scripts/build-issues-index.sh`.
+
+## Conclusion
+
+A pure keymap swap is enough for many LazyVim-style workflow aliases and basic
+standalone motions, but it is not enough for real Vim editing compatibility. The
+next experiment should implement the smallest useful code path: a selectable Vim
+keymap profile and a tiny linewise operator slice for `dd`, `yy`, and `cc`, with
+tests proving that the default Helix keymap remains unchanged unless the profile
+is selected.
+
+## Completion Review
+
+**Reviewer:** Fresh-context Codex adversarial reviewer.
+
+**Initial verdict:** Changes required.
+
+The reviewer found two evidence gaps in the result matrix: the `h`/`j`/`k`/`l`
+core Vim row and the search row cited LazyVim behavior but not local Neovim help
+evidence, which violated this experiment's two-sided evidence rule for
+non-`Deferred` core Vim classifications.
+
+**Fixes made:**
+
+- Added Neovim motion citations for `h`/`l` and `k`/`j` from
+  `vendor/neovim/runtime/doc/motion.txt`.
+- Added Neovim search citations for `/`, `?`, `n`, `N`, and `*` from
+  `vendor/neovim/runtime/doc/pattern.txt`.
+
+**Final verdict:** Approved. No Required findings remained.

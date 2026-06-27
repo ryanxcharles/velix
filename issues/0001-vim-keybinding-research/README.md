@@ -119,4 +119,4 @@ trie/sequence machinery is enough.
 ## Experiments
 
 - [Experiment 1: Build a Vim and LazyVim compatibility matrix](01-compatibility-matrix.md) -
-  **Designed**
+  **Pass**
