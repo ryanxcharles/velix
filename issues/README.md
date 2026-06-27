@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                                | Title                     | Opened     |
+| ------------------------------------------------ | ------------------------- | ---------- |
+| [0003](0003-default-tokyo-night-theme/README.md) | Default Tokyo Night theme | 2026-06-27 |
 
 ## Closed
 
