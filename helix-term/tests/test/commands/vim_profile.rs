@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use helix_core::Range;
 use helix_term::{
     commands::MappableCommand,
@@ -5,6 +7,7 @@ use helix_term::{
     keymap::KeyTrie,
 };
 use helix_view::{
+    doc,
     document::Mode,
     input::{parse_macro, KeyCode, KeyEvent, KeyModifiers},
 };
@@ -72,6 +75,15 @@ fn assert_insert_command(config: &Config, keys: &str, expected: MappableCommand)
         insert.search(&keys),
         Some(&KeyTrie::MappableCommand(expected))
     );
+}
+
+fn register_values(app: &Application, register: char) -> Vec<String> {
+    app.editor
+        .registers
+        .read(register, &app.editor)
+        .unwrap()
+        .map(Cow::into_owned)
+        .collect()
 }
 
 fn assert_normal_missing(config: &Config, keys: &str) {
@@ -262,8 +274,8 @@ fn vim_profile_classifies_remaining_vim_grammar_gaps() {
     assert_normal_command(&config, "mi", MappableCommand::select_textobject_inner);
 
     assert_normal_command(&config, "\"", MappableCommand::select_register);
-    assert_normal_missing(&config, "\"ayy");
-    assert_normal_missing(&config, "\"_dd");
+    assert_normal_missing(&config, "\"adw");
+    assert_normal_missing(&config, "\"adiw");
 
     assert_normal_command(&config, "v", MappableCommand::select_mode);
     assert_normal_missing(&config, "<C-v>");
@@ -810,6 +822,164 @@ async fn vim_profile_yy_p_pastes_current_line() -> anyhow::Result<()> {
                 |]#three
                 "},
         ),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_register_prefix_yanks_and_pastes_named_register() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+            r#""ayyG"ap"#,
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+        ),
+        &|app| {
+            let doc = doc!(app.editor);
+            assert_eq!(doc.text().to_string(), "one\ntwo\nthree\ntwo\n");
+            assert_eq!(register_values(app, 'a'), vec!["two\n".to_owned()]);
+        },
+        false,
+    )
+    .await?;
+
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+            r#""ayyG"aP"#,
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+        ),
+        &|app| {
+            let doc = doc!(app.editor);
+            assert_eq!(doc.text().to_string(), "one\ntwo\ntwo\nthree\n");
+            assert_eq!(register_values(app, 'a'), vec!["two\n".to_owned()]);
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_black_hole_register_delete_preserves_default_register() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            indoc! {"\
+                #[o|]#ne
+                two
+                three
+                "},
+            r#"yyj"_ddp"#,
+            indoc! {"\
+                #[o|]#ne
+                two
+                three
+                "},
+        ),
+        &|app| {
+            let doc = doc!(app.editor);
+            assert_eq!(doc.text().to_string(), "one\nthree\none\n");
+            assert_eq!(register_values(app, '"'), vec!["one\n".to_owned()]);
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_register_prefix_yanks_named_register() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        ("a#[bc|]#d", r#"v"ay"#, "a#[bc|]#d"),
+        &|app| {
+            let doc = doc!(app.editor);
+            assert_eq!(doc.text().to_string(), "abcd\n");
+            assert_eq!(register_values(app, 'a'), vec!["bc".to_owned()]);
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_black_hole_delete_preserves_default_register() -> anyhow::Result<()>
+{
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            indoc! {"\
+                #[o|]#ne
+                two
+                three
+                "},
+            r#"yyGv$"_d"#,
+            indoc! {"\
+                #[o|]#ne
+                two
+                three
+                "},
+        ),
+        &|app| {
+            let doc = doc!(app.editor);
+            assert_eq!(doc.text().to_string(), "one\ntwo\n\n");
+            assert_eq!(register_values(app, '"'), vec!["one\n".to_owned()]);
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_insert_mode_ctrl_r_inserts_named_register() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+            r#""ayyi<C-r>a<esc>"#,
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+        ),
+        &|app| {
+            let doc = doc!(app.editor);
+            assert_eq!(doc.text().to_string(), "one\ntwo\ntwo\nthree\n");
+            assert_eq!(register_values(app, 'a'), vec!["two\n".to_owned()]);
+        },
+        false,
     )
     .await?;
 

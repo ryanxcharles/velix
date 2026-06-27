@@ -107,7 +107,7 @@ behavior, verification, status, fix, and Helix/Velix alternative.
   **Pass**
 - [Experiment 3: Insert-mode basics](03-insert-mode-basics.md) - **Pass**
 - [Experiment 4: Register prefix and paste basics](04-register-prefix-and-paste.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 

@@ -82,3 +82,62 @@ the scope fits Issue 6. It also checked the key dispatch premise:
 register through `Context`, and the relevant yank, delete, paste, and
 insert-register commands consume `cx.register` or a register-specific paste
 path. The reviewer approved the plan-only state with no implementation present.
+
+## Result
+
+**Result:** Pass
+
+Experiment 4 verified that Velix already supports the register-prefix slice for
+commands that are mapped in the Vim profile. No key dispatch code was needed:
+`select_register` stores the selected register, pending keymap dispatch carries
+it forward, and the existing yank, delete, paste, and insert-register commands
+consume it.
+
+The test suite now proves:
+
+- normal `"ayy` yanks the current line into register `a`;
+- normal `"ap` and `"aP` paste from register `a`;
+- normal `"_dd` deletes the current line without replacing the default yank
+  register;
+- select-mode `"ay` yanks the active selection into register `a`;
+- select-mode `"_d` deletes the active selection without replacing the default
+  yank register;
+- insert-mode `C-r a` inserts register `a`.
+
+The audit and user-facing Vim profile documentation now distinguish this
+supported register forwarding from still-unsupported register-prefixed
+operator-pending grammar such as `"adw` and `"adiw`.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 40 passed, 0 failed, 176 filtered out.
+- `prettier --write --prose-wrap always --print-width 80` on changed Markdown
+  files
+  - Pass.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved.
+
+The reviewer found no Required issues. It verified that the result commit had
+not been made before review, the README marks Experiment 4 as `Pass`, the
+experiment file includes `Result` and `Conclusion`, named-register tests assert
+register `a` contents, black-hole tests preserve the unnamed register in normal
+and select modes, and the docs and audit distinguish supported register
+forwarding from unsupported operator-pending register grammar. It also reran
+`cargo fmt --check` and the Vim-profile integration test suite, which passed
+with 40 tests.
+
+## Conclusion
+
+The earlier broad claim that register-prefix grammar such as `"ayy` and `"_dd`
+was deferred was too coarse. Velix can support register prefixes for mapped
+commands through its existing register forwarding path. The remaining gap is the
+deeper Vim grammar: register-prefixed operators with arbitrary motions or text
+objects still require operator-pending support or a deliberate selection-first
+alternative.

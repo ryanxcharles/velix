@@ -19,29 +19,32 @@ on top of the selected profile.
 The first profile focuses on standalone normal-mode keys whose Helix command is
 close enough for everyday Vim muscle memory:
 
-| Key       | Action                                      |
-| --------- | ------------------------------------------- |
-| `h/j/k/l` | Move left/down/up/right                     |
-| `w/b/e`   | Move by word                                |
-| `0`       | Go to line start                            |
-| `^`       | Go to first non-whitespace character        |
-| `$`       | Go to line end                              |
-| `gg`      | Go to file start                            |
-| `G`       | Go to counted line, or file end without one |
-| `i/a`     | Insert before/append after the selection    |
-| `I/A`     | Insert at line start/end                    |
-| `o/O`     | Open a line below/above                     |
-| `/ ?`     | Search forward/backward                     |
-| `n/N`     | Repeat search forward/backward              |
-| `u`       | Undo                                        |
-| `C-r`     | Redo                                        |
-| `q{reg}`  | Record macro into register                  |
-| `@{reg}`  | Replay macro from register                  |
-| `.`       | Repeat the last insert change               |
-| `p/P`     | Paste after/before                          |
-| `dd`      | Select the current line and delete it       |
-| `yy`      | Select the current line and yank it         |
-| `cc`      | Select the current line, change it, insert  |
+| Key         | Action                                      |
+| ----------- | ------------------------------------------- |
+| `h/j/k/l`   | Move left/down/up/right                     |
+| `w/b/e`     | Move by word                                |
+| `0`         | Go to line start                            |
+| `^`         | Go to first non-whitespace character        |
+| `$`         | Go to line end                              |
+| `gg`        | Go to file start                            |
+| `G`         | Go to counted line, or file end without one |
+| `i/a`       | Insert before/append after the selection    |
+| `I/A`       | Insert at line start/end                    |
+| `o/O`       | Open a line below/above                     |
+| `/ ?`       | Search forward/backward                     |
+| `n/N`       | Repeat search forward/backward              |
+| `u`         | Undo                                        |
+| `C-r`       | Redo                                        |
+| `q{reg}`    | Record macro into register                  |
+| `@{reg}`    | Replay macro from register                  |
+| `.`         | Repeat the last insert change               |
+| `p/P`       | Paste after/before                          |
+| `dd`        | Select the current line and delete it       |
+| `yy`        | Select the current line and yank it         |
+| `cc`        | Select the current line, change it, insert  |
+| `"{reg}yy`  | Yank the current line into register `{reg}` |
+| `"{reg}p/P` | Paste from register `{reg}` after/before    |
+| `"_dd`      | Delete the current line without yanking     |
 
 `dd`, `yy`, and `cc` are intentionally implemented as a small linewise slice,
 not as full Vim operator-pending mode.
@@ -51,21 +54,23 @@ not as full Vim operator-pending mode.
 Velix maps common Vim visual-mode motions onto Helix select mode where the
 selection behavior is close enough:
 
-| Key   | Action                                          |
-| ----- | ----------------------------------------------- |
-| `v`   | Enter Helix select mode                         |
-| `V`   | Select the current line and enter select mode   |
-| `$`   | Extend the selection to line end                |
-| `0`   | Extend the selection to line start              |
-| `^`   | Extend the selection to first non-whitespace    |
-| `G`   | Extend to counted line, or file end without one |
-| `d`   | Delete the selection                            |
-| `c`   | Change the selection and enter insert mode      |
-| `y`   | Yank the selection                              |
-| `>`   | Indent selected lines                           |
-| `<`   | Unindent selected lines                         |
-| `o`   | Flip the active selection endpoint              |
-| `Esc` | Leave select mode                               |
+| Key       | Action                                          |
+| --------- | ----------------------------------------------- |
+| `v`       | Enter Helix select mode                         |
+| `V`       | Select the current line and enter select mode   |
+| `$`       | Extend the selection to line end                |
+| `0`       | Extend the selection to line start              |
+| `^`       | Extend the selection to first non-whitespace    |
+| `G`       | Extend to counted line, or file end without one |
+| `d`       | Delete the selection                            |
+| `c`       | Change the selection and enter insert mode      |
+| `y`       | Yank the selection                              |
+| `"{reg}y` | Yank the selection into register `{reg}`        |
+| `"_d`     | Delete the selection without yanking            |
+| `>`       | Indent selected lines                           |
+| `<`       | Unindent selected lines                         |
+| `o`       | Flip the active selection endpoint              |
+| `Esc`     | Leave select mode                               |
 
 `V` is a line-selection entry point into Helix select mode. It is not yet full
 Vim linewise Visual mode with linewise register and paste metadata.
@@ -133,8 +138,11 @@ Important first-slice differences:
   display-line behavior more closely than raw Vim line movement.
 - `dd`, `yy`, and `cc` use linewise selections. After `yy` followed by `p`, the
   pasted line may remain selected according to Helix selection behavior.
+- Register-prefix command forwarding works for already mapped commands such as
+  `"{reg}yy`, `"{reg}p`, `"{reg}P`, select-mode `"{reg}y`, and black-hole
+  deletes with `"_dd` / select-mode `"_d`.
 - Paste uses Helix register semantics. Exact Vim linewise versus characterwise
-  paste fidelity is deferred.
+  paste fidelity and full operator-pending register grammar are deferred.
 - Select-mode `d`, `c`, `y`, `>`, and `<` operate on Helix selections and return
   to normal mode according to the underlying Helix command behavior.
 - Insert-mode `C-u` uses Velix's `kill_to_line_start` behavior. On indented
@@ -173,7 +181,8 @@ explicit parser/state work before Velix can claim closer Vim compatibility:
 - operator-pending commands such as `dw`, `d$`, `cw`, and `yap`;
 - count multiplication such as `2d3w`;
 - text-object operator forms such as `diw`, `ci"`, and `ya)`;
-- register-prefix grammar such as `"ayy` and `"_dd`;
+- register-prefixed operator-pending grammar such as `"adw`, `"adiw`, and
+  count/operator combinations;
 - Vim named marks and mark jumps such as `ma`, `'a`, and `` `a ``; use the Helix
   jumplist with `C-s`, `C-o`, `C-i`, and `Space j`;
 - full Vim dot-repeat with `.` beyond the current repeat-last-insert behavior;
