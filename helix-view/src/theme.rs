@@ -250,11 +250,14 @@ impl Loader {
     }
 
     pub fn default_theme(&self, true_color: bool) -> Theme {
-        if true_color {
-            self.default()
-        } else {
-            self.base16_default()
+        if !true_color {
+            return self.base16_default();
         }
+
+        self.load("tokyonight").unwrap_or_else(|err| {
+            warn!("failed to load default theme `tokyonight` - {}", err);
+            self.default()
+        })
     }
 
     /// Returns the default theme
@@ -670,6 +673,7 @@ impl TryFrom<Value> for ThemePalette {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn test_parse_style_string() {
@@ -718,6 +722,46 @@ mod tests {
                 .bg(Color::Rgb(0, 0, 0))
                 .add_modifier(Modifier::BOLD)
         );
+    }
+
+    #[test]
+    fn true_color_default_theme_is_tokyonight() {
+        let loader = Loader::new(helix_loader::runtime_dirs());
+        let theme = loader.default_theme(true);
+
+        assert_eq!(theme.name(), "tokyonight");
+        assert!(!theme.is_16_color());
+    }
+
+    #[test]
+    fn non_true_color_default_theme_stays_base16() {
+        let loader = Loader::new(helix_loader::runtime_dirs());
+        let theme = loader.default_theme(false);
+
+        assert_eq!(theme.name(), "base16_default");
+        assert!(theme.is_16_color());
+    }
+
+    #[test]
+    fn true_color_default_theme_falls_back_when_tokyonight_is_missing() {
+        let missing_runtime = PathBuf::from("/path/that/does/not/exist");
+        let loader = Loader::new(&[missing_runtime]);
+        let theme = loader.default_theme(true);
+
+        assert_eq!(theme.name(), "default");
+    }
+
+    #[test]
+    fn true_color_default_theme_falls_back_when_tokyonight_is_malformed() {
+        let runtime = tempfile::tempdir().unwrap();
+        let themes = runtime.path().join("themes");
+        std::fs::create_dir(&themes).unwrap();
+        std::fs::write(themes.join("tokyonight.toml"), "this is not toml =").unwrap();
+
+        let loader = Loader::new(&[runtime.path().to_path_buf()]);
+        let theme = loader.default_theme(true);
+
+        assert_eq!(theme.name(), "default");
     }
 
     // tests for parsing an RGB `Highlight`

@@ -116,3 +116,96 @@ verification command would not prove explicit-theme precedence through
   requirement.
 
 **Final verdict:** Approved. No Required findings remained.
+
+## Result
+
+**Result:** Pass
+
+Implemented Tokyo Night as the true-color default theme by changing
+`Loader::default_theme(true)` to load the bundled `tokyonight` runtime theme.
+The method remains infallible: if `tokyonight` cannot be loaded, it logs a
+warning and falls back to the embedded `default` theme.
+
+The non-true-color path still returns `base16_default`.
+
+The provided root `tokyonight.toml` was compared against
+`runtime/themes/tokyonight.toml`. After ignoring the existing author comment and
+blank lines, the contents matched exactly, so Tokyo Night was already in the
+appropriate runtime location. The duplicate root file was removed from the
+worktree.
+
+No user-facing theme documentation change was needed because
+`book/src/themes.md` does not claim that no-config startup uses the old embedded
+`default` theme.
+
+Verification completed:
+
+- Confirmed `runtime/themes/tokyonight.toml` exists and the duplicate root
+  `tokyonight.toml` is gone.
+- Added tests proving:
+  - `Loader::default_theme(true)` resolves to `tokyonight`;
+  - `Loader::default_theme(false)` resolves to `base16_default`;
+  - `Loader::default_theme(true)` falls back to embedded `default` if
+    `tokyonight` is unavailable;
+  - `Loader::default_theme(true)` falls back to embedded `default` if
+    `tokyonight.toml` cannot be parsed.
+- Confirmed explicit theme configuration precedence by source inspection:
+  `helix-term/src/application.rs` still loads `config.theme.as_ref()` before
+  calling `editor.theme_loader.default_theme(true_color)`.
+- Ran markdown formatting and regenerated the issue index.
+- Ran:
+
+  ```bash
+  cargo fmt
+  cargo fmt --check
+  cargo test -p helix-view theme
+  ```
+
+## Conclusion
+
+The provided Tokyo Night theme is correctly represented by the existing bundled
+`runtime/themes/tokyonight.toml`. Velix now defaults to that theme on true-color
+terminals while preserving `base16_default` for non-true-color terminals and
+preserving explicit user theme configuration.
+
+## Completion Review
+
+**Reviewer:** Fresh-context Codex adversarial reviewer.
+
+**Initial verdict:** Changes required.
+
+The reviewer found two required issues:
+
+- The required markdown formatting command included `book/src/themes.md`, but
+  that file had not been formatted and failed `prettier --check`.
+- The malformed-theme fallback claim was under-proven because the test only
+  covered a missing runtime path.
+
+**Fixes made:**
+
+- Ran prettier over the full required markdown file set, including
+  `book/src/themes.md`.
+- Added a temp-runtime test with a syntactically malformed
+  `themes/tokyonight.toml` proving that `Loader::default_theme(true)` falls back
+  to embedded `default` on TOML parse failure.
+
+**Verification after fixes:**
+
+```bash
+cargo fmt
+cargo fmt --check
+cargo test -p helix-view theme
+prettier --check --prose-wrap always --print-width 80 \
+  issues/0003-default-tokyo-night-theme/README.md \
+  issues/0003-default-tokyo-night-theme/01-use-tokyonight-default.md \
+  issues/README.md \
+  book/src/themes.md
+```
+
+**Final verdict:** Approved. No Required findings remained.
+
+The reviewer independently verified `cargo fmt --check`,
+`cargo test -p helix-view theme`, the full required prettier check, root
+`tokyonight.toml` removal, continued presence of
+`runtime/themes/tokyonight.toml`, and that the result commit had not been made
+before approval.

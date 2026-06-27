@@ -1,8 +1,13 @@
 ## Themes
 
-To use a theme add `theme = "<name>"` to the top of your [`config.toml`](./configuration.md) file, or select it during runtime using `:theme <name>`.
+To use a theme add `theme = "<name>"` to the top of your
+[`config.toml`](./configuration.md) file, or select it during runtime using
+`:theme <name>`.
 
-Separate themes can be configured for light and dark modes. On terminals supporting [mode 2031 dark/light detection](https://github.com/contour-terminal/contour/blob/master/docs/vt-extensions/color-palette-update-notifications.md), the theme mode is detected from the terminal.
+Separate themes can be configured for light and dark modes. On terminals
+supporting
+[mode 2031 dark/light detection](https://github.com/contour-terminal/contour/blob/master/docs/vt-extensions/color-palette-update-notifications.md),
+the theme mode is detected from the terminal.
 
 ```toml
 [theme]
@@ -15,7 +20,10 @@ light = "catppuccin_latte"
 
 ## Creating a theme
 
-Create a file with the name of your theme as the file name (i.e `mytheme.toml`) and place it in your `themes` directory (i.e `~/.config/helix/themes` or `%AppData%\helix\themes` on Windows). The directory might have to be created beforehand.
+Create a file with the name of your theme as the file name (i.e `mytheme.toml`)
+and place it in your `themes` directory (i.e `~/.config/helix/themes` or
+`%AppData%\helix\themes` on Windows). The directory might have to be created
+beforehand.
 
 > 💡 The names "default" and "base16_default" are reserved for built-in themes
 > and cannot be overridden by user-defined themes.
@@ -28,7 +36,10 @@ Each line in the theme file is specified as below:
 key = { fg = "#ffffff", bg = "#000000", underline = { color = "#ff0000", style = "curl"}, modifiers = ["bold", "italic"] }
 ```
 
-Where `key` represents what you want to style, `fg` specifies the foreground color, `bg` the background color, `underline` the underline `style`/`color`, and `modifiers` is a list of style modifiers. `bg`, `underline` and `modifiers` can be omitted to defer to the defaults.
+Where `key` represents what you want to style, `fg` specifies the foreground
+color, `bg` the background color, `underline` the underline `style`/`color`, and
+`modifiers` is a list of style modifiers. `bg`, `underline` and `modifiers` can
+be omitted to defer to the defaults.
 
 To specify only the foreground color:
 
@@ -38,13 +49,16 @@ To specify only the foreground color:
 key = "#ffffff"
 ```
 
-If the key contains a dot `'.'`, it must be quoted to prevent it being parsed as a [dotted key](https://toml.io/en/v1.0.0#keys).
+If the key contains a dot `'.'`, it must be quoted to prevent it being parsed as
+a [dotted key](https://toml.io/en/v1.0.0#keys).
 
 ```toml
 "key.key" = "#fff"
 ```
 
-Color values must be either a [CSS hex RGB string](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/hex-color) or a name declared in the [`palette`](#color-palettes).
+Color values must be either a
+[CSS hex RGB string](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/hex-color)
+or a name declared in the [`palette`](#color-palettes).
 
 > 💡 Note that Helix doesn't support transparency (alpha channel).
 
@@ -53,14 +67,13 @@ For inspiration, you can find the default `theme.toml`
 user-submitted themes
 [here](https://github.com/helix-editor/helix/blob/master/runtime/themes).
 
-
 ## The details of theme creation
 
 ### Color palettes
 
 It's recommended to define a palette of named colors, and refer to them in the
-configuration values in your theme. To do this, add a table called
-`palette` to your theme file:
+configuration values in your theme. To do this, add a table called `palette` to
+your theme file:
 
 ```toml
 "ui.background" = "white"
@@ -71,15 +84,15 @@ white = "#ffffff"
 black = "#000000"
 ```
 
-Keep in mind that the `[palette]` table includes all keys after its header,
-so it should be defined after the normal theme options.
+Keep in mind that the `[palette]` table includes all keys after its header, so
+it should be defined after the normal theme options.
 
 The default palette uses the terminal's default 16 colors, and the colors names
 are listed below. The `[palette]` section in the config file takes precedence
 over it and is merged into the default palette.
 
 | Color Name      |
-| ---             |
+| --------------- |
 | `default`       |
 | `black`         |
 | `red`           |
@@ -103,34 +116,33 @@ over it and is merged into the default palette.
 The following values may be used as modifier, provided they are supported by
 your terminal emulator.
 
-| Modifier             |
-| ---                  |
-| `bold`               |
-| `dim`                |
-| `italic`             |
-| `underlined`         |
-| `slow_blink`         |
-| `rapid_blink`        |
-| `reversed`           |
-| `hidden`             |
-| `crossed_out`        |
+| Modifier      |
+| ------------- |
+| `bold`        |
+| `dim`         |
+| `italic`      |
+| `underlined`  |
+| `slow_blink`  |
+| `rapid_blink` |
+| `reversed`    |
+| `hidden`      |
+| `crossed_out` |
 
-> 💡 The `underlined` modifier is deprecated and only available for backwards compatibility.
-> Its behavior is equivalent to setting `underline.style="line"`.
+> 💡 The `underlined` modifier is deprecated and only available for backwards
+> compatibility. Its behavior is equivalent to setting `underline.style="line"`.
 
 ### Underline style
 
-One of the following values may be used as a value for `underline.style`, providing it is
-supported by your terminal emulator.
+One of the following values may be used as a value for `underline.style`,
+providing it is supported by your terminal emulator.
 
-| Modifier       |
-| ---            |
-| `line`         |
-| `curl`         |
-| `dashed`       |
-| `dotted`       |
-| `double_line`  |
-
+| Modifier      |
+| ------------- |
+| `line`        |
+| `curl`        |
+| `dashed`      |
+| `dotted`      |
+| `double_line` |
 
 ### Inheritance
 
@@ -149,8 +161,8 @@ berry = "#2A2A4D"
 
 ### Rainbow
 
-The `rainbow` key is used for rainbow highlight for matching brackets.
-The key is a list of styles.
+The `rainbow` key is used for rainbow highlight for matching brackets. The key
+is a list of styles.
 
 ```toml
 rainbow = ["#ff0000", "#ffa500", "#fff000", { fg = "#00ff00", modifiers = ["bold"] }]
@@ -164,11 +176,21 @@ The following is a list of scopes available to use for styling:
 
 #### Syntax highlighting
 
-These keys match [tree-sitter scopes](https://tree-sitter.github.io/tree-sitter/3-syntax-highlighting.html#highlights).
+These keys match
+[tree-sitter scopes](https://tree-sitter.github.io/tree-sitter/3-syntax-highlighting.html#highlights).
 
-When determining styling for a highlight, the longest matching theme key will be used. For example, if the highlight is `function.builtin.static`, the key `function.builtin` will be used instead of `function`.
+When determining styling for a highlight, the longest matching theme key will be
+used. For example, if the highlight is `function.builtin.static`, the key
+`function.builtin` will be used instead of `function`.
 
-This list is also the reference for the capture names used in `highlights.scm` queries (`@function`, `@type`, …) — see [Adding languages](./guides/adding_languages.md). When several captures cover the same text the **last** matching pattern in the file wins; when they sit on nested nodes the **innermost** node wins regardless of order, so capture the leaf you mean (put `@function` on the called identifier, not a node wrapping it). A method call is `@function.method`; a field access with no call is `@variable.other.member`.
+This list is also the reference for the capture names used in `highlights.scm`
+queries (`@function`, `@type`, …) — see
+[Adding languages](./guides/adding_languages.md). When several captures cover
+the same text the **last** matching pattern in the file wins; when they sit on
+nested nodes the **innermost** node wins regardless of order, so capture the
+leaf you mean (put `@function` on the called identifier, not a node wrapping
+it). A method call is `@function.method`; a field access with no call is
+`@variable.other.member`.
 
 We use a similar set of scopes as
 [Sublime Text](https://www.sublimetext.com/docs/scope_naming.html). See also
@@ -181,10 +203,12 @@ We use a similar set of scopes as
   - `parameter` - Generic type parameters (`T`)
   - `enum`
     - `variant` - Enum variants
-- `constructor` - Constructors, struct/record literals, type names in value position
+- `constructor` - Constructors, struct/record literals, type names in value
+  position
 
 - `constant` (TODO: constant.other.placeholder for `%v`)
-  - `builtin` Special constants provided by the language (`true`, `false`, `nil` etc)
+  - `builtin` Special constants provided by the language (`true`, `false`, `nil`
+    etc)
     - `boolean`
   - `character`
     - `escape`
@@ -214,7 +238,8 @@ We use a similar set of scopes as
     - `mutable` - Mutable function parameters (e.g. marked with `mut` in Rust)
   - `other`
     - `member` - Fields of composite data types (e.g. structs, unions)
-      - `private` - Private fields that use a unique syntax (currently just ECMAScript-based languages)
+      - `private` - Private fields that use a unique syntax (currently just
+        ECMAScript-based languages)
 
 - `label` - `.class`, `#id` in CSS, etc.
 
@@ -242,7 +267,8 @@ We use a similar set of scopes as
 - `function` - Function definitions and calls
   - `builtin` - Language built-in functions
   - `method` - Method definitions and calls (`obj.method()`)
-    - `private` - Private methods that use a unique syntax (currently just ECMAScript-based languages)
+    - `private` - Private methods that use a unique syntax (currently just
+      ECMAScript-based languages)
   - `macro` - Macro invocations (e.g. `println!` in Rust)
   - `special` (preprocessor in C)
 
@@ -251,8 +277,8 @@ We use a similar set of scopes as
 
 - `namespace` - Modules and namespaces (e.g. `std::collections`, package names)
 
-- `special` - `derive` in Rust, bolded query-match in pickers (includes file explorer), etc.
-See also [#2380]
+- `special` - `derive` in Rust, bolded query-match in pickers (includes file
+  explorer), etc. See also [#2380]
 
 - `markup`
   - `heading`
@@ -303,9 +329,8 @@ These scopes are used for theming the editor interface:
       - `completion` - for completion doc popup UI
       - `hover` - for hover popup UI
 
-
 | Key                               | Notes                                                                                          |
-| ---                               | ---                                                                                            |
+| --------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `ui.background`                   |                                                                                                |
 | `ui.background.separator`         | Picker separator below input line                                                              |
 | `ui.cursor`                       |                                                                                                |

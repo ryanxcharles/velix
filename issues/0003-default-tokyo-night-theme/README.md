@@ -75,4 +75,4 @@ is designed, reviewed, approved, and committed under the issue workflow.
 ## Experiments
 
 - [Experiment 1: Use Tokyo Night as the true-color default](01-use-tokyonight-default.md) -
-  **Designed**
+  **Pass**
