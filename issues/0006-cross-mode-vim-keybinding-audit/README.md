@@ -103,6 +103,8 @@ behavior, verification, status, fix, and Helix/Velix alternative.
 
 - [Experiment 1: Inventory and select-mode motions](01-inventory-and-select-mode-motions.md) -
   **Pass**
+- [Experiment 2: Select-mode editing commands](02-select-mode-editing-commands.md) -
+  **Designed**
 
 ## Constraints
 
