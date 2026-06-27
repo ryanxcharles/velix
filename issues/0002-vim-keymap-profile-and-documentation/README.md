@@ -125,3 +125,8 @@ experiment. The documentation should include at least these categories:
 - What test helpers are sufficient for profile-specific keybinding behavior?
 - Where should compatibility documentation live: `book/`, `docs/`, `runtime/`,
   or a combination of user-facing docs plus issue-local implementation notes?
+
+## Experiments
+
+- [Experiment 1: Selectable Vim profile](01-selectable-vim-profile.md) -
+  **Designed**
