@@ -51,14 +51,21 @@ not as full Vim operator-pending mode.
 Velix maps common Vim visual-mode motions onto Helix select mode where the
 selection behavior is close enough:
 
-| Key | Action                                          |
-| --- | ----------------------------------------------- |
-| `v` | Enter Helix select mode                         |
-| `V` | Select the current line and enter select mode   |
-| `$` | Extend the selection to line end                |
-| `0` | Extend the selection to line start              |
-| `^` | Extend the selection to first non-whitespace    |
-| `G` | Extend to counted line, or file end without one |
+| Key   | Action                                          |
+| ----- | ----------------------------------------------- |
+| `v`   | Enter Helix select mode                         |
+| `V`   | Select the current line and enter select mode   |
+| `$`   | Extend the selection to line end                |
+| `0`   | Extend the selection to line start              |
+| `^`   | Extend the selection to first non-whitespace    |
+| `G`   | Extend to counted line, or file end without one |
+| `d`   | Delete the selection                            |
+| `c`   | Change the selection and enter insert mode      |
+| `y`   | Yank the selection                              |
+| `>`   | Indent selected lines                           |
+| `<`   | Unindent selected lines                         |
+| `o`   | Flip the active selection endpoint              |
+| `Esc` | Leave select mode                               |
 
 `V` is a line-selection entry point into Helix select mode. It is not yet full
 Vim linewise Visual mode with linewise register and paste metadata.
@@ -114,6 +121,8 @@ Important first-slice differences:
   pasted line may remain selected according to Helix selection behavior.
 - Paste uses Helix register semantics. Exact Vim linewise versus characterwise
   paste fidelity is deferred.
+- Select-mode `d`, `c`, `y`, `>`, and `<` operate on Helix selections and return
+  to normal mode according to the underlying Helix command behavior.
 - `.` uses Velix's existing repeat-last-insert behavior. Full Vim dot-repeat for
   arbitrary normal-mode changes and operator forms is deferred.
 - `Q` remains Helix's direct macro-record command as a fallback. Vim-style macro

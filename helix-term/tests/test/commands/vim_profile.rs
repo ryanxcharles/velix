@@ -4,7 +4,10 @@ use helix_term::{
     config::{Config, ConfigLoadError},
     keymap::KeyTrie,
 };
-use helix_view::{document::Mode, input::parse_macro};
+use helix_view::{
+    document::Mode,
+    input::{parse_macro, KeyCode, KeyEvent, KeyModifiers},
+};
 
 use super::*;
 
@@ -44,6 +47,19 @@ fn assert_select_command(config: &Config, keys: &str, expected: MappableCommand)
 
     assert_eq!(
         select.search(&keys),
+        Some(&KeyTrie::MappableCommand(expected))
+    );
+}
+
+fn assert_select_char(config: &Config, ch: char, expected: MappableCommand) {
+    let key = KeyEvent {
+        code: KeyCode::Char(ch),
+        modifiers: KeyModifiers::NONE,
+    };
+    let select = config.keys.get(&Mode::Select).unwrap();
+
+    assert_eq!(
+        select.search(&[key]),
         Some(&KeyTrie::MappableCommand(expected))
     );
 }
@@ -122,6 +138,19 @@ fn vim_profile_maps_select_mode_vim_motions() {
     assert_select_command(&config, "^", MappableCommand::extend_to_first_nonwhitespace);
     assert_select_command(&config, "$", MappableCommand::extend_to_line_end);
     assert_select_command(&config, "G", MappableCommand::vim_extend_to_line);
+    assert_select_command(&config, "o", MappableCommand::flip_selections);
+}
+
+#[test]
+fn vim_profile_maps_select_mode_editing_commands() {
+    let config = vim_config();
+
+    assert_select_command(&config, "d", MappableCommand::delete_selection);
+    assert_select_command(&config, "c", MappableCommand::change_selection);
+    assert_select_command(&config, "y", MappableCommand::yank);
+    assert_select_char(&config, '>', MappableCommand::indent);
+    assert_select_char(&config, '<', MappableCommand::unindent);
+    assert_select_command(&config, "<esc>", MappableCommand::exit_select_mode);
 }
 
 #[test]
@@ -351,6 +380,20 @@ async fn explicit_default_keymap_preserves_helix_keys() -> anyhow::Result<()> {
     )
     .await?;
 
+    let config = r#"
+        [editor]
+        keymap = "default"
+    "#
+    .to_owned();
+    let config = Config::load(Ok(&config), Err(ConfigLoadError::default())).unwrap();
+    let select = config.keys.get(&Mode::Select).unwrap();
+    let keys = parse_macro("o").unwrap();
+    assert_eq!(
+        select.search(&keys),
+        Some(&KeyTrie::MappableCommand(MappableCommand::open_below))
+    );
+    assert_select_command(&config, "G", MappableCommand::goto_line);
+
     Ok(())
 }
 
@@ -517,6 +560,90 @@ async fn vim_profile_select_mode_counted_g_extends_to_counted_line() -> anyhow::
         &|app| {
             let (view, doc) = helix_view::current_ref!(app.editor);
             assert_eq!(doc.selection(view.id).primary(), Range::new(9, 4));
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_d_deletes_selection() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("a#[bc|]#d", "vd", "a#[d|]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_c_changes_selection() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("a#[bc|]#d", "vcXX<esc>", "aXX#[d|]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_y_yanks_selection() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("a#[bc|]#d", "vyp", "abc#[bc|]#d"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_indent_and_unindent_selected_lines() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        ("#[one\ntwo\n|]#three\n", "v<gt>", "#[one\ntwo\n|]#three\n"),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.text().to_string(), "\tone\n\ttwo\nthree\n");
+            assert_eq!(doc.selection(view.id).primary(), Range::new(1, 10));
+            assert_eq!(app.editor.mode, Mode::Normal);
+        },
+        false,
+    )
+    .await?;
+
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            "#[    one\n    two\n|]#three\n",
+            "v<lt>",
+            "#[    one\n    two\n|]#three\n",
+        ),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.text().to_string(), "one\ntwo\nthree\n");
+            assert_eq!(doc.selection(view.id).primary(), Range::new(0, 8));
+            assert_eq!(app.editor.mode, Mode::Normal);
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_o_flips_selection_endpoint() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        ("#[ab|]#cd", "vo", "#[ab|]#cd"),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(2, 0));
         },
         false,
     )

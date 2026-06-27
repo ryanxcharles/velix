@@ -500,6 +500,7 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "^" => extend_to_first_nonwhitespace,
                 "$" => extend_to_line_end,
                 "G" => vim_extend_to_line,
+                "o" => flip_selections,
             }),
         },
     );

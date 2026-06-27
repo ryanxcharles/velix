@@ -93,3 +93,46 @@ exact expected command targets for all keymap assertions, and explicit default
 profile coverage proving select-mode `o` remains Helix-style `open_below` unless
 the Vim profile is selected. After those revisions, the reviewer approved the
 design with no Required findings.
+
+## Result
+
+**Result:** Pass
+
+Experiment 2 audited the common Vim visual/select editing command batch.
+Existing inherited select-mode bindings already matched the right command
+surface for `d`, `c`, `y`, `>`, `<`, and `Esc`. Vim-profile select-mode `o` was
+changed from inherited Helix `open_below` behavior to `flip_selections`,
+matching Vim's visual-mode "other end" workflow. The explicit
+`editor.keymap = "default"` profile still keeps Helix-style `o => open_below`.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 30 passed, 0 failed, 176 filtered out.
+- `prettier --write --prose-wrap always --print-width 80` on changed Markdown
+  files
+  - Pass.
+
+## Conclusion
+
+Velix now has tested select-mode coverage for the core visual editing keys in
+this batch. The implementation keeps Helix selection semantics, including the
+post-command selection ranges produced by indent/unindent, but the Vim key
+spellings now dispatch to the expected editing behavior. Follow-up experiments
+should continue through remaining common Vim bindings by mode, especially
+register prefixes, paste metadata, search/command-line behavior, and broader
+insert-mode controls.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved.
+
+The reviewer reported no Required findings. It independently verified
+`cargo fmt --check`, the focused Vim-profile integration tests, Prettier checks,
+and `git diff --check`. The only Optional finding was that the user-facing
+select-mode table omitted `Esc` even though the audit and tests cover
+`Esc => exit_select_mode`; the docs were updated before the result commit.
