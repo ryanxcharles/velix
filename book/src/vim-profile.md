@@ -48,35 +48,37 @@ not as full Vim operator-pending mode.
 For workflows that are not core Vim editing grammar, the profile adds aliases
 for common LazyVim-style commands when Velix already has a direct command:
 
-| Key               | Action                            |
-| ----------------- | --------------------------------- |
-| `Space Space`     | File picker                       |
-| `Space /`         | Global search                     |
-| `Space f f`       | File picker                       |
-| `Space f F`       | File picker in current directory  |
-| `Space f g`       | Changed-file picker               |
-| `H/L`             | Previous/next buffer              |
-| `[b` / `]b`       | Previous/next buffer              |
-| `Space ,`         | Buffer picker                     |
-| `Space b b`       | Buffer picker                     |
-| `Space b p/n`     | Previous/next buffer              |
-| `[d` / `]d`       | Previous/next diagnostic          |
-| `Space x x`       | Diagnostics picker                |
-| `Space x X`       | Workspace diagnostics picker      |
-| `gd` / `gr`       | Go to definition/reference        |
-| `gD` / `gy`       | Go to declaration/type definition |
-| `Space a`         | Code action                       |
-| `Space c a`       | Code action                       |
-| `Space s s`       | Document symbols                  |
-| `Space s S`       | Workspace symbols                 |
-| `[h` / `]h`       | Previous/next change              |
-| `Space g g`       | Changed-file picker               |
-| `C-h/j/k/l`       | Move between windows              |
-| `Space -`         | Horizontal split                  |
-| `Space \|`        | Vertical split                    |
-| `Space w d`       | Close window                      |
-| `Space w s/v`     | Horizontal/vertical split         |
-| `Space w h/j/k/l` | Move between windows              |
+| Key               | Action                              |
+| ----------------- | ----------------------------------- |
+| `Space Space`     | File picker                         |
+| `Space /`         | Global search                       |
+| `Space f f`       | File picker                         |
+| `Space f F`       | File picker in current directory    |
+| `Space f g`       | Changed-file picker                 |
+| `H/L`             | Previous/next buffer                |
+| `[b` / `]b`       | Previous/next buffer                |
+| `Space ,`         | Buffer picker                       |
+| `Space b b`       | Buffer picker                       |
+| `Space b p/n`     | Previous/next buffer                |
+| `[d` / `]d`       | Previous/next diagnostic            |
+| `Space x x`       | Diagnostics picker                  |
+| `Space x X`       | Workspace diagnostics picker        |
+| `gd` / `gr`       | Go to definition/reference          |
+| `gD` / `gy`       | Go to declaration/type definition   |
+| `gI` / `gK`       | Go to implementation/signature help |
+| `Space a`         | Code action                         |
+| `Space c a`       | Code action                         |
+| `Space c r`       | Rename symbol                       |
+| `Space s s`       | Document symbols                    |
+| `Space s S`       | Workspace symbols                   |
+| `[h` / `]h`       | Previous/next change                |
+| `Space g g`       | Changed-file picker                 |
+| `C-h/j/k/l`       | Move between windows                |
+| `Space -`         | Horizontal split                    |
+| `Space \|`        | Vertical split                      |
+| `Space w d`       | Close window                        |
+| `Space w s/v`     | Horizontal/vertical split           |
+| `Space w h/j/k/l` | Move between windows                |
 
 ## Different
 
@@ -130,5 +132,6 @@ explicit parser/state work before Velix can claim closer Vim compatibility:
 - LazyVim terminal mappings such as `Space f t`, `Space f T`, and `C-/`;
 - LazyVim tab mappings under `Space Tab`; use Velix buffers and windows instead;
 - LazyVim UI toggles under `Space u`;
-- exact LazyVim aliases that Velix can likely add later, such as `gI`, `gK`,
-  `Space c r`, and `Space c f`.
+- LazyVim `Space c f` format-current-buffer mapping; Velix's existing
+  `format_selections` command is range/selection formatting, not the same
+  behavior.

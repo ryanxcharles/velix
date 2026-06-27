@@ -69,3 +69,48 @@ Initial verdict: Changes required.
 Final verdict: Approved. The reviewer confirmed that `<leader>cf` is excluded
 with a reason, the audit/table scope consistently says three aliases, and the
 pass criteria are under `## Verification`.
+
+## Result
+
+**Result:** Pass
+
+The Vim profile now adds the three direct-compatible LazyVim LSP/code aliases:
+
+- `gI` maps to `goto_implementation`.
+- `gK` maps to `signature_help`.
+- `<leader>cr` maps to `rename_symbol`.
+
+`<leader>cf` remains unsupported for now because LazyVim formats the current
+buffer, while Velix's existing `format_selections` command formats only the
+active selection/range. The audit and user-facing documentation now distinguish
+that deferred mapping from the three fixed aliases.
+
+Verification run:
+
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 15 passed, 0 failed, 176 filtered out.
+- `cargo fmt`
+  - Pass.
+- `prettier --write --prose-wrap always --print-width 80` on changed Markdown
+  files
+  - Pass.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved.
+
+The reviewer reported no Required findings. It independently verified that the
+result commit had not yet been made, the source diff only added `gI`, `gK`, and
+`<leader>cr`, `<leader>cf` remained unmapped and documented as deferred, nested
+keymap merges preserved inherited mappings such as `gd`, `gr`, `gD`, and `gy`,
+the experiment file had Result and Conclusion sections, the issue README marked
+Experiment 5 as Pass, the targeted Vim-profile tests passed, `cargo fmt --check`
+passed, and Prettier check passed.
+
+## Conclusion
+
+The remaining directly compatible LazyVim aliases found by Experiment 4 are now
+fixed. Remaining unsupported LazyVim workflow gaps need missing editor features,
+plugin integrations, or different semantics rather than simple keymap aliases.

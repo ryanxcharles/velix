@@ -104,8 +104,11 @@ fn vim_profile_maps_lazyvim_workflow_aliases() {
     assert_normal_command(&config, "<space>xx", MappableCommand::diagnostics_picker);
     assert_normal_command(&config, "gd", MappableCommand::goto_definition);
     assert_normal_command(&config, "gr", MappableCommand::goto_reference);
+    assert_normal_command(&config, "gI", MappableCommand::goto_implementation);
+    assert_normal_command(&config, "gK", MappableCommand::signature_help);
     assert_normal_command(&config, "<space>a", MappableCommand::code_action);
     assert_normal_command(&config, "<space>ca", MappableCommand::code_action);
+    assert_normal_command(&config, "<space>cr", MappableCommand::rename_symbol);
     assert_normal_command(
         &config,
         "<space>ss",
@@ -213,10 +216,7 @@ fn vim_profile_classifies_remaining_lazyvim_workflow_gaps() {
 
     assert_normal_command(&config, "gD", MappableCommand::goto_declaration);
     assert_normal_command(&config, "gy", MappableCommand::goto_type_definition);
-    assert_normal_missing(&config, "gI");
-    assert_normal_missing(&config, "gK");
     assert_normal_command(&config, "K", MappableCommand::keep_selections);
-    assert_normal_missing(&config, "<space>cr");
     assert_normal_missing(&config, "<space>cf");
     assert_normal_missing(&config, "<space>cd");
     assert_normal_command(&config, "[e", MappableCommand::goto_prev_entry);

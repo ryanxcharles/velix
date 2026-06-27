@@ -430,6 +430,10 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "C-j" => jump_view_down,
                 "C-k" => jump_view_up,
                 "C-l" => jump_view_right,
+                "g" => { "Vim goto"
+                    "I" => goto_implementation,
+                    "K" => signature_help,
+                },
                 "[" => { "Vim previous"
                     "b" => goto_previous_buffer,
                     "h" => goto_prev_change,
@@ -469,6 +473,7 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                     },
                     "c" => { "Code"
                         "a" => code_action,
+                        "r" => rename_symbol,
                     },
                     "s" => { "Symbols"
                         "s" => lsp_or_syntax_symbol_picker,
