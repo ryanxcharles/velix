@@ -105,7 +105,7 @@ behavior, verification, status, fix, and Helix/Velix alternative.
   **Pass**
 - [Experiment 2: Select-mode editing commands](02-select-mode-editing-commands.md) -
   **Pass**
-- [Experiment 3: Insert-mode basics](03-insert-mode-basics.md) - **Designed**
+- [Experiment 3: Insert-mode basics](03-insert-mode-basics.md) - **Pass**
 
 ## Constraints
 

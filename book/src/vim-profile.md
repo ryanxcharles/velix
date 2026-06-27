@@ -70,6 +70,20 @@ selection behavior is close enough:
 `V` is a line-selection entry point into Helix select mode. It is not yet full
 Vim linewise Visual mode with linewise register and paste metadata.
 
+## Insert-mode Bindings
+
+The Vim profile also supports common insert-mode editing keys:
+
+| Key                 | Action                              |
+| ------------------- | ----------------------------------- |
+| `Esc` / `C-[`       | Return to normal mode               |
+| `Backspace` / `C-h` | Delete the previous character       |
+| `C-w`               | Delete the previous word            |
+| `C-u`               | Delete backward on the current line |
+| `C-j` / `Enter`     | Insert a newline                    |
+| `C-r`               | Insert register contents            |
+| `C-x`               | Invoke Velix completion             |
+
 ## LazyVim-like Bindings
 
 For workflows that are not core Vim editing grammar, the profile adds aliases
@@ -123,6 +137,14 @@ Important first-slice differences:
   paste fidelity is deferred.
 - Select-mode `d`, `c`, `y`, `>`, and `<` operate on Helix selections and return
   to normal mode according to the underlying Helix command behavior.
+- Insert-mode `C-u` uses Velix's `kill_to_line_start` behavior. On indented
+  text, this preserves indentation before the first non-whitespace character in
+  the tested case rather than claiming exact Vim inserted-text / `'backspace'`
+  semantics.
+- Insert-mode `C-k` keeps Helix's kill-to-line-end behavior. Vim uses `C-k` for
+  digraph entry, which is not implemented in this profile.
+- Insert-mode `C-x` invokes Velix completion; Vim's advanced `C-x` completion
+  submodes are not implemented.
 - `.` uses Velix's existing repeat-last-insert behavior. Full Vim dot-repeat for
   arbitrary normal-mode changes and operator forms is deferred.
 - `Q` remains Helix's direct macro-record command as a fallback. Vim-style macro

@@ -158,8 +158,20 @@ fn vim_profile_maps_insert_mode_vim_basics() {
     let config = vim_config();
 
     assert_insert_command(&config, "<esc>", MappableCommand::normal_mode);
+    assert_insert_command(&config, "<C-[>", MappableCommand::normal_mode);
+    assert_insert_command(
+        &config,
+        "<backspace>",
+        MappableCommand::delete_char_backward,
+    );
+    assert_insert_command(&config, "<C-h>", MappableCommand::delete_char_backward);
     assert_insert_command(&config, "<C-w>", MappableCommand::delete_word_backward);
     assert_insert_command(&config, "<C-u>", MappableCommand::kill_to_line_start);
+    assert_insert_command(&config, "<C-k>", MappableCommand::kill_to_line_end);
+    assert_insert_command(&config, "<C-j>", MappableCommand::insert_newline);
+    assert_insert_command(&config, "<ret>", MappableCommand::insert_newline);
+    assert_insert_command(&config, "<C-r>", MappableCommand::insert_register);
+    assert_insert_command(&config, "<C-x>", MappableCommand::completion);
 }
 
 #[test]
@@ -646,6 +658,79 @@ async fn vim_profile_select_mode_o_flips_selection_endpoint() -> anyhow::Result<
             assert_eq!(doc.selection(view.id).primary(), Range::new(2, 0));
         },
         false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_insert_mode_ctrl_left_bracket_exits_insert_mode() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "iabc<C-[>", "abc#[|\n]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_insert_mode_deletes_previous_character() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "iabc<C-h><esc>", "ab#[|\n]#"),
+    )
+    .await?;
+
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "iabc<backspace><esc>", "ab#[|\n]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_insert_mode_deletes_previous_word() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "ione two<C-w><esc>", "one #[|\n]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_insert_mode_ctrl_u_deletes_backward_on_current_line() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "ione two<C-u><esc>", "#[|\n]#"),
+    )
+    .await?;
+
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "i  one<C-u><esc>", "  #[|\n]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_insert_mode_inserts_newline() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "ione<C-j>two<esc>", "one\ntwo#[|\n]#"),
+    )
+    .await?;
+
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "ione<ret>two<esc>", "one\ntwo#[|\n]#"),
     )
     .await?;
 

@@ -96,3 +96,52 @@ added `C-m` / Enter coverage and required `C-u` tests to record Velix behavior
 on ordinary and indented lines rather than claiming exact Vim inserted-text /
 `'backspace'` semantics. After those changes, the reviewer approved the design
 with no Required findings.
+
+## Result
+
+**Result:** Pass
+
+Experiment 3 audited common insert-mode Vim bindings. The Vim profile now adds
+`C-[ => normal_mode`, matching Vim's alternate escape key. Existing insert-mode
+bindings for `Esc`, Backspace / `C-h`, `C-w`, `C-u`, `C-j` / Enter, `C-r`, and
+`C-x` were covered with keymap assertions and representative integration tests
+where stable.
+
+The audit deliberately does not claim Vim compatibility for insert-mode `C-k`:
+Vim uses `C-k` for digraph entry, while Velix keeps Helix's `kill_to_line_end`
+behavior. It also documents `C-u` as Velix `kill_to_line_start` behavior rather
+than exact Vim inserted-text / `'backspace'` semantics.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 35 passed, 0 failed, 176 filtered out.
+- `prettier --write --prose-wrap always --print-width 80` on changed Markdown
+  files
+  - Pass.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved.
+
+The reviewer initially required one audit fix: the older Experiment 1 `C-u`
+insert-mode row still classified the binding as fully `Works`, contradicting
+Experiment 3's tested `Different by design` classification for Velix
+`kill_to_line_start` behavior on indented lines. The audit row was updated to
+match the tested Experiment 3 behavior and point to the new verification. The
+reviewer rechecked the diff, formatting, and integration tests, then approved
+with no Required findings.
+
+## Conclusion
+
+Velix now has tested insert-mode coverage for common Vim editing keys that map
+to the existing command surface. The experiment added the missing `C-[` escape
+alias and documented insert-mode differences that should not be overclaimed,
+especially `C-k` digraph entry and advanced `C-x` completion submodes. Follow-up
+experiments should continue with remaining cross-mode gaps such as registers,
+paste metadata, command/search prompt behavior, marks, and operator-pending
+grammar.

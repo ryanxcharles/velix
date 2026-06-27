@@ -502,6 +502,9 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "G" => vim_extend_to_line,
                 "o" => flip_selections,
             }),
+            Mode::Insert => keymap!({ "Vim insert mode"
+                "C-[" => normal_mode,
+            }),
         },
     );
     keys
