@@ -77,7 +77,7 @@ Velix default, not eliminating Helix behavior.
 ## Experiments
 
 - [Experiment 1: Make Vim profile the default](01-make-vim-profile-default.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 

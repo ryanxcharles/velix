@@ -64,3 +64,60 @@ explicit `default`, local/global precedence, user key merges, and no-config `G`
 behavior. It also ran read-only checks: `cargo fmt --check`,
 `cargo test -p helix-term config::tests:: --lib --no-run`, and
 `cargo test -p helix-term --features integration --test integration vim_profile -- --list`.
+
+## Result
+
+**Result:** Pass
+
+The Vim profile is now the default keymap for config loading and
+`Config::default()`. Missing `editor.keymap` falls back to `keymap::vim()`,
+while explicit `editor.keymap = "default"` still loads the Helix-style keymap.
+
+The integration test helper still merges partial config overrides over
+`Config::default()`, so no-config and partial-config integration tests exercise
+the same Vim default. A new exact-config helper lets tests use the exact keymap
+produced by config loading. The updated integration tests prove that bare `G`
+goes to the end of the document without config, and that explicit
+`keymap = "default"` preserves Helix-style key behavior without residual
+Vim-only bindings from the helper.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term config::tests:: --lib`
+  - Pass: 7 passed, 0 failed.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 16 passed, 0 failed, 176 filtered out.
+- `cargo test -p helix-term --features integration --test integration test_jump_undo_redo -- --nocapture`
+  - Pass: 1 passed, 0 failed, 191 filtered out.
+- `prettier --write --prose-wrap always --print-width 80 book/src/vim-profile.md`
+  - Pass.
+
+Completion review initially requested one helper fix: `AppBuilder::with_config`
+must not make explicit `editor.keymap = "default"` integration tests retain
+Vim-only bindings by merging a loaded default-profile config over the Vim
+default. The fix keeps `with_config` for partial override configs and adds
+`with_exact_config` for tests that need the exact keymap produced by
+`Config::load`.
+
+## Conclusion
+
+The default keymap behavior now matches Velix's Vim-first goal. Users who want
+the Helix-style keymap can still opt into it with `editor.keymap = "default"`,
+and user key remaps still merge over the selected base profile.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved.
+
+The reviewer initially requested one helper fix: explicit
+`editor.keymap = "default"` integration tests should not merge a loaded
+default-profile config over the Vim default, because that could leave residual
+Vim-only bindings. After the helper split and added `with_exact_config` usage,
+the reviewer approved the result with no Required findings. It independently
+verified `cargo fmt --check`, the config unit tests, the focused Vim-profile
+integration tests, the `test_jump_undo_redo` partial-override integration test,
+and Prettier checks on changed Markdown.

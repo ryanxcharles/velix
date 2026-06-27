@@ -43,7 +43,7 @@ impl Default for Config {
     fn default() -> Config {
         Config {
             theme: None,
-            keys: keymap::default(),
+            keys: keymap::vim(),
             editor: helix_view::editor::Config::default(),
         }
     }
@@ -113,7 +113,7 @@ impl Config {
                 let local_keymap_profile = take_keymap_profile(&mut local.editor)?;
                 let mut keys = local_keymap_profile
                     .or(global_keymap_profile)
-                    .unwrap_or(KeymapProfile::Default)
+                    .unwrap_or(KeymapProfile::Vim)
                     .base_keys();
                 if let Some(global_keys) = global.keys {
                     merge_keys(&mut keys, global_keys)
@@ -145,7 +145,7 @@ impl Config {
             }
             (Ok(mut config), Err(_)) | (Err(_), Ok(mut config)) => {
                 let mut keys = take_keymap_profile(&mut config.editor)?
-                    .unwrap_or(KeymapProfile::Default)
+                    .unwrap_or(KeymapProfile::Vim)
                     .base_keys();
                 if let Some(keymap) = config.keys {
                     merge_keys(&mut keys, keymap);
@@ -226,7 +226,7 @@ mod tests {
             A-F12 = "move_next_word_end"
         "#;
 
-        let mut keys = keymap::default();
+        let mut keys = keymap::vim();
         merge_keys(
             &mut keys,
             hashmap! {
@@ -253,11 +253,23 @@ mod tests {
     fn keys_resolve_to_correct_defaults() {
         // From serde default
         let default_keys = Config::load_test("").keys;
-        assert_eq!(default_keys, keymap::default());
+        assert_eq!(default_keys, keymap::vim());
 
         // From the Default trait
         let default_keys = Config::default().keys;
-        assert_eq!(default_keys, keymap::default());
+        assert_eq!(default_keys, keymap::vim());
+    }
+
+    #[test]
+    fn default_keymap_profile_can_be_selected() {
+        let config = Config::load_test(
+            r#"
+            [editor]
+            keymap = "default"
+        "#,
+        );
+
+        assert_eq!(config.keys, keymap::default());
     }
 
     #[test]
@@ -298,9 +310,6 @@ mod tests {
 
         let config = Config::load_test(
             r#"
-            [editor]
-            keymap = "vim"
-
             [keys.normal]
             "$" = "goto_line_start"
         "#,

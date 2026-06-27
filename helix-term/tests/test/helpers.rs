@@ -294,7 +294,6 @@ pub fn temp_file_with_contents<S: AsRef<str>>(
 pub fn test_config() -> Config {
     Config {
         editor: test_editor_config(),
-        keys: helix_term::keymap::default(),
         ..Default::default()
     }
 }
@@ -386,9 +385,16 @@ impl AppBuilder {
 
     // Remove this attribute once `with_config` is used in a test:
     #[allow(dead_code)]
-    pub fn with_config(mut self, mut config: Config) -> Self {
-        let keys = replace(&mut config.keys, helix_term::keymap::default());
+    pub fn with_config(mut self, config: Config) -> Self {
+        let mut config = config;
+        let keys = replace(&mut config.keys, Config::default().keys);
         merge_keys(&mut config.keys, keys);
+        self.config = config;
+        self
+    }
+
+    #[allow(dead_code)]
+    pub fn with_exact_config(mut self, config: Config) -> Self {
         self.config = config;
         self
     }

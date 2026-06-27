@@ -1,15 +1,18 @@
-# Vim Profile
+# Vim Keymap
 
-Velix includes an opt-in Vim-oriented keymap profile. It keeps the default Helix
-keymap unchanged unless you enable it in `config.toml`:
+Velix uses its Vim-oriented keymap profile by default. A fresh Velix config uses
+Vim-style normal-mode keys such as `G` for file end without requiring an
+explicit keymap setting.
+
+To use the Helix-style keymap instead, set this in `config.toml`:
 
 ```toml
 [editor]
-keymap = "vim"
+keymap = "default"
 ```
 
-Use `keymap = "default"` or remove the setting to use the Helix-style keymap.
-User `[keys]` remaps still apply on top of the selected profile.
+You can also set `keymap = "vim"` explicitly. User `[keys]` remaps still apply
+on top of the selected profile.
 
 ## Vim-like Bindings
 

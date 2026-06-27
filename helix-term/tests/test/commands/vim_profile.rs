@@ -226,27 +226,54 @@ fn vim_profile_classifies_remaining_lazyvim_workflow_gaps() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn vim_profile_preserves_default_keymap_until_selected() -> anyhow::Result<()> {
+async fn vim_profile_is_default_keymap() -> anyhow::Result<()> {
     test((
         indoc! {"\
             #[t|]#wo
             "},
         "$",
         indoc! {"\
-            #[t|]#wo
+            tw#[o|]#
             "},
     ))
     .await?;
 
+    test((
+        indoc! {"\
+            #[o|]#ne
+            two
+            three
+            "},
+        "G",
+        indoc! {"\
+            one
+            two
+            #[t|]#hree
+            "},
+    ))
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn explicit_default_keymap_preserves_helix_keys() -> anyhow::Result<()> {
+    let config = r#"
+        [editor]
+        keymap = "default"
+    "#
+    .to_owned();
+    let config = Config::load(Ok(&config), Err(ConfigLoadError::default())).unwrap();
+
     test_with_config(
-        AppBuilder::new().with_config(vim_config()),
+        AppBuilder::new().with_exact_config(config),
         (
             indoc! {"\
                 #[t|]#wo
                 "},
             "$",
             indoc! {"\
-                tw#[o|]#
+                #[t|]#wo
                 "},
         ),
     )
