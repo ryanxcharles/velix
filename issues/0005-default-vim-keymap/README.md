@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-27"
+closed = "2026-06-27"
 +++
 
 # Issue 5: Default Vim keymap
@@ -87,3 +88,14 @@ Velix default, not eliminating Helix behavior.
 - Do not modify closed issues.
 - Keep the change narrowly scoped to default profile selection, tests, and docs.
 - Run `cargo fmt` after Rust edits.
+
+## Conclusion
+
+Issue 5 is solved by making the Vim profile the default base keymap for fresh
+Velix configs and for missing `editor.keymap` settings. Explicit
+`editor.keymap = "default"` remains available for the Helix-style keymap, and
+user `[keys]` remaps continue to merge over the selected base profile.
+
+The result is covered by config unit tests, focused Vim-profile integration
+tests proving no-config `G` behavior, explicit default-profile coverage, and a
+partial-override integration test for the shared test helper.
