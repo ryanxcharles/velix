@@ -102,7 +102,7 @@ behavior, verification, status, fix, and Helix/Velix alternative.
 ## Experiments
 
 - [Experiment 1: Inventory and select-mode motions](01-inventory-and-select-mode-motions.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 

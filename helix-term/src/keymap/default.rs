@@ -421,6 +421,7 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "^" => goto_first_nonwhitespace,
                 "$" => goto_line_end,
                 "G" => vim_goto_line,
+                "V" => [extend_to_line_bounds, select_mode],
                 "H" => goto_previous_buffer,
                 "L" => goto_next_buffer,
                 "q" => vim_record_macro,
@@ -493,6 +494,12 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                         "l" => jump_view_right,
                     },
                 },
+            }),
+            Mode::Select => keymap!({ "Vim select mode"
+                "0" => extend_to_line_start,
+                "^" => extend_to_first_nonwhitespace,
+                "$" => extend_to_line_end,
+                "G" => vim_extend_to_line,
             }),
         },
     );

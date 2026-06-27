@@ -1,3 +1,4 @@
+use helix_core::Range;
 use helix_term::{
     commands::MappableCommand,
     config::{Config, ConfigLoadError},
@@ -34,6 +35,26 @@ fn assert_normal_sequence(config: &Config, keys: &str, expected: &[MappableComma
     assert_eq!(
         normal.search(&keys),
         Some(&KeyTrie::Sequence(expected.into()))
+    );
+}
+
+fn assert_select_command(config: &Config, keys: &str, expected: MappableCommand) {
+    let keys = parse_macro(keys).unwrap();
+    let select = config.keys.get(&Mode::Select).unwrap();
+
+    assert_eq!(
+        select.search(&keys),
+        Some(&KeyTrie::MappableCommand(expected))
+    );
+}
+
+fn assert_insert_command(config: &Config, keys: &str, expected: MappableCommand) {
+    let keys = parse_macro(keys).unwrap();
+    let insert = config.keys.get(&Mode::Insert).unwrap();
+
+    assert_eq!(
+        insert.search(&keys),
+        Some(&KeyTrie::MappableCommand(expected))
     );
 }
 
@@ -83,6 +104,33 @@ fn vim_profile_maps_representative_vim_keys() {
     assert_normal_command(&config, "@", MappableCommand::vim_replay_macro);
     assert_normal_command(&config, "p", MappableCommand::paste_after);
     assert_normal_command(&config, "P", MappableCommand::paste_before);
+}
+
+#[test]
+fn vim_profile_maps_select_mode_vim_motions() {
+    let config = vim_config();
+
+    assert_normal_sequence(
+        &config,
+        "V",
+        &[
+            MappableCommand::extend_to_line_bounds,
+            MappableCommand::select_mode,
+        ],
+    );
+    assert_select_command(&config, "0", MappableCommand::extend_to_line_start);
+    assert_select_command(&config, "^", MappableCommand::extend_to_first_nonwhitespace);
+    assert_select_command(&config, "$", MappableCommand::extend_to_line_end);
+    assert_select_command(&config, "G", MappableCommand::vim_extend_to_line);
+}
+
+#[test]
+fn vim_profile_maps_insert_mode_vim_basics() {
+    let config = vim_config();
+
+    assert_insert_command(&config, "<esc>", MappableCommand::normal_mode);
+    assert_insert_command(&config, "<C-w>", MappableCommand::delete_word_backward);
+    assert_insert_command(&config, "<C-u>", MappableCommand::kill_to_line_start);
 }
 
 #[test]
@@ -177,7 +225,6 @@ fn vim_profile_classifies_remaining_vim_grammar_gaps() {
     assert_normal_missing(&config, "\"_dd");
 
     assert_normal_command(&config, "v", MappableCommand::select_mode);
-    assert_normal_missing(&config, "V");
     assert_normal_missing(&config, "<C-v>");
 
     assert_normal_missing(&config, "'a");
@@ -279,6 +326,31 @@ async fn explicit_default_keymap_preserves_helix_keys() -> anyhow::Result<()> {
     )
     .await?;
 
+    let config = r#"
+        [editor]
+        keymap = "default"
+    "#
+    .to_owned();
+    let config = Config::load(Ok(&config), Err(ConfigLoadError::default())).unwrap();
+
+    test_with_config(
+        AppBuilder::new().with_exact_config(config),
+        (
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+            "V",
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+        ),
+    )
+    .await?;
+
     Ok(())
 }
 
@@ -351,6 +423,102 @@ async fn vim_profile_counted_g_goes_to_counted_line() -> anyhow::Result<()> {
                 three
                 "},
         ),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_v_selects_current_line() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        (
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
+                "},
+            "V",
+            indoc! {"\
+                one
+                #[two
+                |]#three
+                "},
+        ),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_dollar_extends_to_line_end() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        (
+            indoc! {"\
+                #[t|]#wo
+                "},
+            "v$",
+            indoc! {"\
+                #[two|]#
+                "},
+        ),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_zero_extends_to_line_start() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("  tw#[o|]#\n", "v0", "#[|  two]#\n"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_caret_extends_to_first_nonwhitespace() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("  tw#[o|]#\n", "v^", "  #[|two]#\n"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_g_extends_to_last_line_without_count() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        ("#[o|]#ne\ntwo\nthree\n", "vG", "#[o|]#ne\ntwo\nthree\n"),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(0, 9));
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_select_mode_counted_g_extends_to_counted_line() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        ("one\ntwo\n#[t|]#hree\n", "v2G", "one\ntwo\n#[t|]#hree\n"),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(9, 4));
+        },
+        false,
     )
     .await?;
 

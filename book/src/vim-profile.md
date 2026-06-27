@@ -46,6 +46,23 @@ close enough for everyday Vim muscle memory:
 `dd`, `yy`, and `cc` are intentionally implemented as a small linewise slice,
 not as full Vim operator-pending mode.
 
+## Select-mode Bindings
+
+Velix maps common Vim visual-mode motions onto Helix select mode where the
+selection behavior is close enough:
+
+| Key | Action                                          |
+| --- | ----------------------------------------------- |
+| `v` | Enter Helix select mode                         |
+| `V` | Select the current line and enter select mode   |
+| `$` | Extend the selection to line end                |
+| `0` | Extend the selection to line start              |
+| `^` | Extend the selection to first non-whitespace    |
+| `G` | Extend to counted line, or file end without one |
+
+`V` is a line-selection entry point into Helix select mode. It is not yet full
+Vim linewise Visual mode with linewise register and paste metadata.
+
 ## LazyVim-like Bindings
 
 For workflows that are not core Vim editing grammar, the profile adds aliases
@@ -107,8 +124,9 @@ Important first-slice differences:
 - `ma` and `mi` keep Helix text-object selection under the match menu. Vim
   operator text-object forms such as `diw`, `ci"`, and `ya)` are not implemented
   as Vim grammar.
-- `v` enters Helix select mode. `V` and `C-v` do not start Vim linewise or
-  blockwise Visual modes.
+- `v` enters Helix select mode. `V` selects the current line in Helix select
+  mode, but it does not create full Vim linewise Visual metadata. `C-v` does not
+  start Vim blockwise Visual mode.
 - `C-s` keeps the Helix jumplist behavior, not LazyVim's save-file mapping. Use
   `:write` / `:w` to save, or add a user remap.
 - `K` keeps Helix `keep_selections`, not LazyVim hover.
@@ -128,8 +146,9 @@ explicit parser/state work before Velix can claim closer Vim compatibility:
 - Vim named marks and mark jumps such as `ma`, `'a`, and `` `a ``; use the Helix
   jumplist with `C-s`, `C-o`, `C-i`, and `Space j`;
 - full Vim dot-repeat with `.` beyond the current repeat-last-insert behavior;
-- exact linewise/characterwise register metadata and paste behavior;
-- blockwise Visual mode.
+- exact linewise/characterwise register metadata and paste behavior, including
+  full Vim linewise Visual mode metadata after `V`;
+- blockwise Visual mode;
 - LazyVim persistence/session mappings such as `Space q s`, `Space q S`,
   `Space q l`, and `Space q d`;
 - LazyVim terminal mappings such as `Space f t`, `Space f T`, and `C-/`;

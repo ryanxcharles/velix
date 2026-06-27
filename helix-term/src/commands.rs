@@ -436,6 +436,7 @@ impl MappableCommand {
         goto_file_start, "Goto line number `<n>` else file start",
         goto_file_end, "Goto file end",
         vim_goto_line, "Goto line number `<n>` else file end",
+        vim_extend_to_line, "Extend to line number `<n>` else file end",
         extend_to_file_start, "Extend to line number `<n>` else file start",
         extend_to_file_end, "Extend to file end",
         goto_file, "Goto files/URLs in selections",
@@ -3980,6 +3981,14 @@ fn vim_goto_line(cx: &mut Context) {
         goto_line_impl(cx, Movement::Move);
     } else {
         goto_last_line_impl(cx, Movement::Move)
+    }
+}
+
+fn vim_extend_to_line(cx: &mut Context) {
+    if cx.count.is_some() {
+        goto_line_impl(cx, Movement::Extend);
+    } else {
+        goto_last_line_impl(cx, Movement::Extend)
     }
 }
 

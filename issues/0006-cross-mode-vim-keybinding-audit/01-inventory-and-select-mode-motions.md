@@ -101,3 +101,54 @@ assertions alone would not prove the combined behavior. The design was revised
 to require integration tests for both `vG` extending to the last line and `v2G`
 extending to line 2, unless implementation evidence proves a specific blocker.
 After that revision, the reviewer approved the design with no Required findings.
+
+## Result
+
+**Result:** Pass
+
+Experiment 1 created the mode-specific Issue 6 audit table and fixed the first
+select-mode Vim batch.
+
+Implemented behavior:
+
+- Normal-mode `V` now selects the current line and enters Helix select mode.
+- Select-mode `$` now extends to line end.
+- Select-mode `0` now extends to line start.
+- Select-mode `^` now extends to first non-whitespace.
+- Select-mode `G` now uses `vim_extend_to_line`, preserving Vim's counted
+  behavior while making bare `G` extend to the last line.
+
+The implementation does not claim full Vim linewise Visual mode. `V` is a
+line-selection entry point into Helix select mode; linewise register and paste
+metadata remain deferred.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term config::tests:: --lib`
+  - Pass: 7 passed, 0 failed.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 24 passed, 0 failed, 176 filtered out.
+- `prettier --write --prose-wrap always --print-width 80 issues/0006-cross-mode-vim-keybinding-audit/audit.md book/src/vim-profile.md`
+  - Pass.
+
+## Conclusion
+
+The first cross-mode audit batch fixed the specific regressions that motivated
+Issue 6: `V` now performs useful line selection, and `$` now works in select
+mode. It also added related select-mode line motions so the Vim profile is not
+normal-mode-only for this basic motion family. Follow-up experiments should
+continue the mode-specific audit table rather than treating any key as globally
+working based on one mode.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved.
+
+The reviewer reported no Required findings. It independently verified
+`cargo fmt --check`, the config unit tests, the focused Vim-profile integration
+tests, and Prettier checks on changed Markdown. The only Optional note was to
+include the new untracked `audit.md` file in the result commit.
