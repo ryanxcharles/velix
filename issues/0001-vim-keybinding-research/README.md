@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-27"
+closed = "2026-06-27"
 +++
 
 # Issue 1: Vim keybinding research
@@ -120,3 +121,32 @@ trie/sequence machinery is enough.
 
 - [Experiment 1: Build a Vim and LazyVim compatibility matrix](01-compatibility-matrix.md) -
   **Pass**
+
+## Conclusion
+
+Issue 1 is solved by [Experiment 1](01-compatibility-matrix.md) and its
+[Vim and LazyVim compatibility matrix](vim-lazyvim-compatibility-matrix.md).
+
+The research found that Velix should not try to get Vim compatibility through a
+single default-keymap replacement. The best first architecture is a selectable
+`vim` keymap profile paired with a small explicit Vim grammar/state layer for
+behavior that remaps cannot model.
+
+The near-term implementation path is:
+
+1. Add a selectable Vim keymap profile while preserving Helix defaults unless
+   the profile is enabled.
+2. Bind low-risk standalone motions and LazyVim-style workflow aliases through
+   that profile.
+3. Prove the smallest linewise operator slice with `dd`, `yy`, and `cc`.
+4. Defer full operator-pending grammar, count multiplication, motion type
+   metadata, text-object operator composition, register-prefix grammar, and
+   dot-repeat until after the profile and first operator slice are tested.
+
+LazyVim should be the compatibility reference for modern workflows such as file
+finding, global search, buffers, diagnostics, LSP actions, git navigation, and
+window commands. Neovim/Vim help should remain the reference for core editing
+semantics.
+
+Further implementation work should continue in a new issue so this research
+record stays immutable.
