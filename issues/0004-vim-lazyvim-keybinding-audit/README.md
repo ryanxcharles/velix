@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-27"
+closed = "2026-06-27"
 +++
 
 # Issue 4: Vim and LazyVim keybinding audit
@@ -138,3 +139,30 @@ documented Helix alternative.
   only when the semantic difference is explicitly documented?
 - Where should the durable audit table live: issue-local only, user-facing docs,
   or both?
+
+## Conclusion
+
+Issue 4 completed a tested audit of the Velix Vim profile against the basic Vim
+normal-mode grammar and common LazyVim workflow bindings in scope for this fork.
+The durable classification lives in `audit.md`, with user-facing behavior
+summarized in `book/src/vim-profile.md`.
+
+The issue fixed concrete Vim/LazyVim compatibility gaps where Velix had a
+compatible implementation surface:
+
+- `G` now follows Vim behavior: bare `G` goes to the last line, and counted `G`
+  still goes to the requested line.
+- Exact LazyVim aliases were added for buffers, code actions, hunk/change
+  navigation, window splits, implementation, signature help, and rename where
+  Velix has matching commands.
+- Vim-style macro recording and replay now use `q{reg}` and `@{reg}`.
+
+The audit also records the remaining categories that are intentionally different
+or unsupported for now. Full Vim operator-pending grammar, count multiplication,
+Vim text-object grammar, Vim register-prefix grammar, named marks, linewise and
+blockwise Visual modes, full dot-repeat, LazyVim sessions, embedded terminals,
+Vim tabs, UI toggles, severity-specific diagnostic navigation, and
+format-current-buffer are not simple keymap aliases. They need future grammar,
+editor-model, command, or feature work before Velix can claim closer
+compatibility. Each audited gap has a tested status and a Helix/Velix
+alternative where one exists.
