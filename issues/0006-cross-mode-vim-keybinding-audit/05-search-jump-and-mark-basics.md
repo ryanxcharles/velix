@@ -78,3 +78,56 @@ scope stays within search, jump, and mark basics, and named marks are not
 overclaimed. It also checked that the existing source maps normal search and
 jumplist keys plus select-mode search extension keys, and that no implementation
 or result section was present before the plan commit.
+
+## Result
+
+**Result:** Pass
+
+Experiment 5 added executable coverage for normal-mode search, select-mode
+search repeat keys, and jumplist traversal. Normal `/`, `?`, `n`, and `N` work
+through Velix's regex prompt and search register state. `C-o` and `C-i` traverse
+the Velix jumplist after a jump.
+
+The experiment also recorded two deliberate differences. `*` maps to Helix's
+current-selection search command with word-boundary detection; with the default
+one-character cursor selection, tested `*n` searches the next matching
+character, not Vim's full word-under-cursor target. Select-mode `n` and `N` use
+Helix's `extend_search_next` / `extend_search_prev` semantics and active search
+direction state rather than exact Vim Visual search behavior.
+
+Named Vim marks remain unsupported in this slice. `ma` and `mi` are Helix
+text-object commands, while `'a` and `` `a `` remain unmapped. The documented
+Velix alternative is the jumplist flow: `C-s`, `C-o`, `C-i`, and `Space j`.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 44 passed, 0 failed, 176 filtered out.
+- `prettier --write --prose-wrap always --print-width 80` on changed Markdown
+  files
+  - Pass.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved after fixes.
+
+The reviewer initially required stronger runtime evidence for `n`, `N`, `C-o`,
+and `C-i`. The first implementation asserted only the final position of combined
+sequences (`/beta<ret>nN` and `G<C-o><C-i>`), which could have passed even if
+the middle keys were no-ops. The tests were split so `/beta<ret>n` proves
+forward repeat search, `/beta<ret>nN` proves reverse repeat back to the prior
+match, `G<C-o>` proves jump-back behavior, and `G<C-o><C-i>` proves forward
+jumplist traversal. The `*` test was also renamed to reflect the tested
+current-selection behavior. After these fixes, the Vim-profile integration test
+suite passed with 44 tests.
+
+## Conclusion
+
+Search and jumplist basics now have mode-specific runtime evidence. The main
+remaining gaps from this slice are deeper Vim mark support and exact Vim
+word-under-cursor `*` behavior, both of which require behavior beyond the
+current direct keymap aliases.

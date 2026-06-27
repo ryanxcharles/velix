@@ -33,8 +33,10 @@ close enough for everyday Vim muscle memory:
 | `o/O`       | Open a line below/above                     |
 | `/ ?`       | Search forward/backward                     |
 | `n/N`       | Repeat search forward/backward              |
+| `*`         | Use current selection as bounded search     |
 | `u`         | Undo                                        |
 | `C-r`       | Redo                                        |
+| `C-o/C-i`   | Jump backward/forward in the jumplist       |
 | `q{reg}`    | Record macro into register                  |
 | `@{reg}`    | Replay macro from register                  |
 | `.`         | Repeat the last insert change               |
@@ -62,6 +64,8 @@ selection behavior is close enough:
 | `0`       | Extend the selection to line start              |
 | `^`       | Extend the selection to first non-whitespace    |
 | `G`       | Extend to counted line, or file end without one |
+| `n`       | Extend to the next search match                 |
+| `N`       | Extend to the previous search match             |
 | `d`       | Delete the selection                            |
 | `c`       | Change the selection and enter insert mode      |
 | `y`       | Yank the selection                              |
@@ -143,6 +147,11 @@ Important first-slice differences:
   deletes with `"_dd` / select-mode `"_d`.
 - Paste uses Helix register semantics. Exact Vim linewise versus characterwise
   paste fidelity and full operator-pending register grammar are deferred.
+- `*` uses Helix's current-selection search command with word-boundary
+  detection. With a one-character cursor selection, tested `*n` searches the
+  next matching character rather than Vim's full word-under-cursor search.
+- Select-mode `n` and `N` use Helix search-extension commands and follow Helix's
+  active search direction and selection semantics.
 - Select-mode `d`, `c`, `y`, `>`, and `<` operate on Helix selections and return
   to normal mode according to the underlying Helix command behavior.
 - Insert-mode `C-u` uses Velix's `kill_to_line_start` behavior. On indented

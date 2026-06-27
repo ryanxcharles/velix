@@ -109,7 +109,7 @@ behavior, verification, status, fix, and Helix/Velix alternative.
 - [Experiment 4: Register prefix and paste basics](04-register-prefix-and-paste.md) -
   **Pass**
 - [Experiment 5: Search, jumps, and marks](05-search-jump-and-mark-basics.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 
