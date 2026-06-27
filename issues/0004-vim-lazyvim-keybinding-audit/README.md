@@ -102,6 +102,8 @@ documented Helix alternative.
   **Pass**
 - [Experiment 2: Add exact LazyVim workflow aliases](02-add-exact-lazyvim-workflow-aliases.md) -
   **Pass**
+- [Experiment 3: Audit macro and repeat bindings](03-audit-macro-and-repeat-bindings.md) -
+  **Designed**
 
 ## Constraints
 
