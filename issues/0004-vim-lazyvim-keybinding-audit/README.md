@@ -106,6 +106,8 @@ documented Helix alternative.
   **Pass**
 - [Experiment 4: Classify remaining grammar and workflows](04-classify-remaining-grammar-and-workflows.md) -
   **Pass**
+- [Experiment 5: Add direct LazyVim LSP aliases](05-add-direct-lazyvim-lsp-aliases.md) -
+  **Designed**
 
 ## Constraints
 
