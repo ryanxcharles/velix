@@ -29,8 +29,11 @@ existing Velix Vim profile or its documented intent:
   `u`, `<C-r>`, `dd`, `yy`, `cc`, `p`, `P`;
 - common LazyVim workflow aliases already targeted by Issue 2: `<C-h>`, `<C-j>`,
   `<C-k>`, `<C-l>`, `H`, `L`, `<leader><leader>`, `<leader>/`, `<leader>bb`,
-  `]d`, `[d`, `<leader>xx`, `gd`, `gr`, `<leader>a`, `<leader>ss`, `]g`, `[g`,
-  `<leader>gg`, `<leader>wd`.
+  `]d`, `[d`, `<leader>xx`, `gd`, `gr`, `<leader>a`, `<leader>ss`, `<leader>gg`,
+  `<leader>wd`;
+- Velix change-navigation audit candidates already present in the profile: `]g`,
+  `[g`. LazyVim's comparable Gitsigns hunk navigation uses `]h`, `[h` and is
+  deferred.
 
 The output is an issue-local audit table that records each binding, reference
 source, expected behavior, observed Velix behavior, verification, status, fix
@@ -115,3 +118,66 @@ Re-review result:
 - The reviewer confirmed that the revised design addresses the counted `G`
   blocker by requiring a Vim-specific command and tests for both bare `G` and
   counted `G`.
+
+## Result
+
+**Result:** Pass
+
+Implemented the first audit slice and fixed the known `G` failure without
+regressing counted Vim behavior.
+
+Changes made:
+
+- Added `audit.md` with first-scope rows for the basic Vim and common LazyVim
+  bindings listed in this experiment.
+- Added `vim_goto_line`, a Vim-profile command that sends counted `G` through
+  counted line navigation and sends bare `G` to the last line.
+- Mapped Vim-profile normal-mode `G` to `vim_goto_line`.
+- Expanded Vim-profile keymap assertions to cover the first-scope inventory.
+- Added integration tests for bare `G` and counted `2G`.
+- Updated the Vim-profile documentation so `G` is described as counted-line
+  navigation with file-end as the no-count default.
+
+Completion review:
+
+- Initial completion review verdict: `CHANGES REQUIRED`.
+- Required finding: the audit and docs overclaimed LazyVim compatibility for
+  `[g` and `]g`; local LazyVim maps hunk navigation to `[h` and `]h`, while
+  Velix maps `[g` and `]g` to Helix/Velix change navigation.
+- Fix: reclassified `[g` and `]g` as `Different by design` in `audit.md`,
+  removed them from the LazyVim-like documentation table, and documented the
+  LazyVim `[h`/`]h` alternative as deferred.
+- Re-review verdict: `CHANGES REQUIRED`.
+- Required finding: this experiment description still listed `[g` and `]g` as
+  common LazyVim workflow aliases.
+- Fix: moved `[g` and `]g` into a separate Velix change-navigation audit
+  candidate bullet and explicitly deferred LazyVim `[h`/`]h`.
+- Final re-review verdict: `APPROVED`.
+
+Verification run:
+
+- `cargo test -p helix-term --features integration --test integration vim_profile`
+  - passed: 11 tests.
+- `cargo test -p helix-term keymap` - passed: 13 tests.
+- `cargo test -p helix-term config` - passed: 6 tests.
+- `cargo fmt --check` - passed.
+- `prettier --check --prose-wrap always --print-width 80 issues/0004-vim-lazyvim-keybinding-audit/README.md issues/0004-vim-lazyvim-keybinding-audit/01-inventory-evidence-and-fix-g.md issues/0004-vim-lazyvim-keybinding-audit/audit.md book/src/vim-profile.md`
+  - passed.
+
+After fixing the completion-review finding, reran:
+
+- `cargo test -p helix-term --features integration --test integration vim_profile`
+  - passed: 11 tests.
+- `cargo fmt --check` - passed.
+- `prettier --check --prose-wrap always --print-width 80 issues/0004-vim-lazyvim-keybinding-audit/README.md issues/0004-vim-lazyvim-keybinding-audit/01-inventory-evidence-and-fix-g.md issues/0004-vim-lazyvim-keybinding-audit/audit.md book/src/vim-profile.md`
+  - passed.
+
+## Conclusion
+
+The audit table and expanded keymap tests give Issue 4 a concrete baseline for
+the first batch of Vim and LazyVim bindings. The `G` bug was not a pure keymap
+problem: mapping it directly to `goto_last_line` would have lost Vim's counted
+`[count]G` behavior, so Velix now has a small Vim-specific wrapper command.
+
+The next experiment should use the same audit-and-test pattern for the next
+unsupported Vim grammar area rather than broadening this experiment further.

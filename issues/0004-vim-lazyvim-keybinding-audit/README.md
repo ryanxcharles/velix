@@ -99,7 +99,7 @@ documented Helix alternative.
 ## Experiments
 
 - [Experiment 1: Inventory evidence and fix `G`](01-inventory-evidence-and-fix-g.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 

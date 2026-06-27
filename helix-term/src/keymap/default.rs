@@ -420,6 +420,7 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "0" => goto_line_start,
                 "^" => goto_first_nonwhitespace,
                 "$" => goto_line_end,
+                "G" => vim_goto_line,
                 "H" => goto_previous_buffer,
                 "L" => goto_next_buffer,
                 "C-r" => redo,

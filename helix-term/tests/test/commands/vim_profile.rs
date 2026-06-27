@@ -41,12 +41,38 @@ fn assert_normal_sequence(config: &Config, keys: &str, expected: &[MappableComma
 fn vim_profile_maps_representative_vim_keys() {
     let config = vim_config();
 
+    assert_normal_command(&config, "h", MappableCommand::move_char_left);
+    assert_normal_command(&config, "j", MappableCommand::move_visual_line_down);
+    assert_normal_command(&config, "k", MappableCommand::move_visual_line_up);
+    assert_normal_command(&config, "l", MappableCommand::move_char_right);
     assert_normal_command(&config, "0", MappableCommand::goto_line_start);
     assert_normal_command(&config, "^", MappableCommand::goto_first_nonwhitespace);
     assert_normal_command(&config, "$", MappableCommand::goto_line_end);
     assert_normal_command(&config, "gg", MappableCommand::goto_file_start);
-    assert_normal_command(&config, "G", MappableCommand::goto_line);
+    assert_normal_command(&config, "G", MappableCommand::vim_goto_line);
+    assert_normal_command(&config, "w", MappableCommand::move_next_word_start);
+    assert_normal_command(&config, "b", MappableCommand::move_prev_word_start);
+    assert_normal_command(&config, "e", MappableCommand::move_next_word_end);
+    assert_normal_command(&config, "W", MappableCommand::move_next_long_word_start);
+    assert_normal_command(&config, "B", MappableCommand::move_prev_long_word_start);
+    assert_normal_command(&config, "E", MappableCommand::move_next_long_word_end);
+    assert_normal_command(&config, "f", MappableCommand::find_next_char);
+    assert_normal_command(&config, "F", MappableCommand::find_prev_char);
+    assert_normal_command(&config, "t", MappableCommand::find_till_char);
+    assert_normal_command(&config, "T", MappableCommand::till_prev_char);
+    assert_normal_command(&config, "/", MappableCommand::search);
+    assert_normal_command(&config, "?", MappableCommand::rsearch);
+    assert_normal_command(&config, "n", MappableCommand::search_next);
+    assert_normal_command(&config, "N", MappableCommand::search_prev);
+    assert_normal_command(
+        &config,
+        "*",
+        MappableCommand::search_selection_detect_word_boundaries,
+    );
+    assert_normal_command(&config, "u", MappableCommand::undo);
     assert_normal_command(&config, "<C-r>", MappableCommand::redo);
+    assert_normal_command(&config, "p", MappableCommand::paste_after);
+    assert_normal_command(&config, "P", MappableCommand::paste_before);
 }
 
 #[test]
@@ -58,6 +84,7 @@ fn vim_profile_maps_lazyvim_workflow_aliases() {
     assert_normal_command(&config, "H", MappableCommand::goto_previous_buffer);
     assert_normal_command(&config, "L", MappableCommand::goto_next_buffer);
     assert_normal_command(&config, "<space>bb", MappableCommand::buffer_picker);
+    assert_normal_command(&config, "[d", MappableCommand::goto_prev_diag);
     assert_normal_command(&config, "]d", MappableCommand::goto_next_diag);
     assert_normal_command(&config, "<space>xx", MappableCommand::diagnostics_picker);
     assert_normal_command(&config, "gd", MappableCommand::goto_definition);
@@ -68,9 +95,13 @@ fn vim_profile_maps_lazyvim_workflow_aliases() {
         "<space>ss",
         MappableCommand::lsp_or_syntax_symbol_picker,
     );
+    assert_normal_command(&config, "[g", MappableCommand::goto_prev_change);
     assert_normal_command(&config, "]g", MappableCommand::goto_next_change);
     assert_normal_command(&config, "<space>gg", MappableCommand::changed_file_picker);
     assert_normal_command(&config, "<C-h>", MappableCommand::jump_view_left);
+    assert_normal_command(&config, "<C-j>", MappableCommand::jump_view_down);
+    assert_normal_command(&config, "<C-k>", MappableCommand::jump_view_up);
+    assert_normal_command(&config, "<C-l>", MappableCommand::jump_view_right);
     assert_normal_command(&config, "<space>wd", MappableCommand::wclose);
 }
 
@@ -155,6 +186,52 @@ async fn vim_profile_user_keys_merge_over_profile() -> anyhow::Result<()> {
             "$",
             indoc! {"\
                 #[t|]#wo
+                "},
+        ),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_g_goes_to_last_line_without_count() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        (
+            indoc! {"\
+                #[o|]#ne
+                two
+                three
+                "},
+            "G",
+            indoc! {"\
+                one
+                two
+                #[t|]#hree
+                "},
+        ),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_counted_g_goes_to_counted_line() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        (
+            indoc! {"\
+                #[o|]#ne
+                two
+                three
+                "},
+            "2G",
+            indoc! {"\
+                one
+                #[t|]#wo
+                three
                 "},
         ),
     )

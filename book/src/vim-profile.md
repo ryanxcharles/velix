@@ -16,26 +16,26 @@ User `[keys]` remaps still apply on top of the selected profile.
 The first profile focuses on standalone normal-mode keys whose Helix command is
 close enough for everyday Vim muscle memory:
 
-| Key       | Action                                     |
-| --------- | ------------------------------------------ |
-| `h/j/k/l` | Move left/down/up/right                    |
-| `w/b/e`   | Move by word                               |
-| `0`       | Go to line start                           |
-| `^`       | Go to first non-whitespace character       |
-| `$`       | Go to line end                             |
-| `gg`      | Go to file start                           |
-| `G`       | Go to line, or file end without a count    |
-| `i/a`     | Insert before/append after the selection   |
-| `I/A`     | Insert at line start/end                   |
-| `o/O`     | Open a line below/above                    |
-| `/ ?`     | Search forward/backward                    |
-| `n/N`     | Repeat search forward/backward             |
-| `u`       | Undo                                       |
-| `C-r`     | Redo                                       |
-| `p/P`     | Paste after/before                         |
-| `dd`      | Select the current line and delete it      |
-| `yy`      | Select the current line and yank it        |
-| `cc`      | Select the current line, change it, insert |
+| Key       | Action                                      |
+| --------- | ------------------------------------------- |
+| `h/j/k/l` | Move left/down/up/right                     |
+| `w/b/e`   | Move by word                                |
+| `0`       | Go to line start                            |
+| `^`       | Go to first non-whitespace character        |
+| `$`       | Go to line end                              |
+| `gg`      | Go to file start                            |
+| `G`       | Go to counted line, or file end without one |
+| `i/a`     | Insert before/append after the selection    |
+| `I/A`     | Insert at line start/end                    |
+| `o/O`     | Open a line below/above                     |
+| `/ ?`     | Search forward/backward                     |
+| `n/N`     | Repeat search forward/backward              |
+| `u`       | Undo                                        |
+| `C-r`     | Redo                                        |
+| `p/P`     | Paste after/before                          |
+| `dd`      | Select the current line and delete it       |
+| `yy`      | Select the current line and yank it         |
+| `cc`      | Select the current line, change it, insert  |
 
 `dd`, `yy`, and `cc` are intentionally implemented as a small linewise slice,
 not as full Vim operator-pending mode.
@@ -62,7 +62,6 @@ for common LazyVim-style commands when Velix already has a direct command:
 | `Space a`         | Code action                      |
 | `Space s s`       | Document symbols                 |
 | `Space s S`       | Workspace symbols                |
-| `[g` / `]g`       | Previous/next change             |
 | `Space g g`       | Changed-file picker              |
 | `C-h/j/k/l`       | Move between windows             |
 | `Space w d`       | Close window                     |
@@ -83,6 +82,8 @@ Important first-slice differences:
   pasted line may remain selected according to Helix selection behavior.
 - Paste uses Helix register semantics. Exact Vim linewise versus characterwise
   paste fidelity is deferred.
+- `[g` and `]g` keep Helix/Velix change navigation. LazyVim's comparable
+  Gitsigns hunk navigation uses `[h` and `]h`, which is deferred.
 - Multiple selections are preserved where Helix commands naturally support them.
 
 ## Deferred
