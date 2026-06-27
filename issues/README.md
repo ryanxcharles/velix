@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                         | Title              | Opened     |
+| ----------------------------------------- | ------------------ | ---------- |
+| [0005](0005-default-vim-keymap/README.md) | Default Vim keymap | 2026-06-27 |
 
 ## Closed
 
