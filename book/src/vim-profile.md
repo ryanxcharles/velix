@@ -48,34 +48,35 @@ not as full Vim operator-pending mode.
 For workflows that are not core Vim editing grammar, the profile adds aliases
 for common LazyVim-style commands when Velix already has a direct command:
 
-| Key               | Action                           |
-| ----------------- | -------------------------------- |
-| `Space Space`     | File picker                      |
-| `Space /`         | Global search                    |
-| `Space f f`       | File picker                      |
-| `Space f F`       | File picker in current directory |
-| `Space f g`       | Changed-file picker              |
-| `H/L`             | Previous/next buffer             |
-| `[b` / `]b`       | Previous/next buffer             |
-| `Space ,`         | Buffer picker                    |
-| `Space b b`       | Buffer picker                    |
-| `Space b p/n`     | Previous/next buffer             |
-| `[d` / `]d`       | Previous/next diagnostic         |
-| `Space x x`       | Diagnostics picker               |
-| `Space x X`       | Workspace diagnostics picker     |
-| `gd` / `gr`       | Go to definition/reference       |
-| `Space a`         | Code action                      |
-| `Space c a`       | Code action                      |
-| `Space s s`       | Document symbols                 |
-| `Space s S`       | Workspace symbols                |
-| `[h` / `]h`       | Previous/next change             |
-| `Space g g`       | Changed-file picker              |
-| `C-h/j/k/l`       | Move between windows             |
-| `Space -`         | Horizontal split                 |
-| `Space \|`        | Vertical split                   |
-| `Space w d`       | Close window                     |
-| `Space w s/v`     | Horizontal/vertical split        |
-| `Space w h/j/k/l` | Move between windows             |
+| Key               | Action                            |
+| ----------------- | --------------------------------- |
+| `Space Space`     | File picker                       |
+| `Space /`         | Global search                     |
+| `Space f f`       | File picker                       |
+| `Space f F`       | File picker in current directory  |
+| `Space f g`       | Changed-file picker               |
+| `H/L`             | Previous/next buffer              |
+| `[b` / `]b`       | Previous/next buffer              |
+| `Space ,`         | Buffer picker                     |
+| `Space b b`       | Buffer picker                     |
+| `Space b p/n`     | Previous/next buffer              |
+| `[d` / `]d`       | Previous/next diagnostic          |
+| `Space x x`       | Diagnostics picker                |
+| `Space x X`       | Workspace diagnostics picker      |
+| `gd` / `gr`       | Go to definition/reference        |
+| `gD` / `gy`       | Go to declaration/type definition |
+| `Space a`         | Code action                       |
+| `Space c a`       | Code action                       |
+| `Space s s`       | Document symbols                  |
+| `Space s S`       | Workspace symbols                 |
+| `[h` / `]h`       | Previous/next change              |
+| `Space g g`       | Changed-file picker               |
+| `C-h/j/k/l`       | Move between windows              |
+| `Space -`         | Horizontal split                  |
+| `Space \|`        | Vertical split                    |
+| `Space w d`       | Close window                      |
+| `Space w s/v`     | Horizontal/vertical split         |
+| `Space w h/j/k/l` | Move between windows              |
 
 ## Different
 
@@ -98,6 +99,16 @@ Important first-slice differences:
 - `[g` and `]g` keep Helix/Velix change navigation. LazyVim's comparable
   Gitsigns hunk navigation uses `[h` and `]h`; Velix maps those aliases to the
   same change navigation because it has no Gitsigns hunk command.
+- `ma` and `mi` keep Helix text-object selection under the match menu. Vim
+  operator text-object forms such as `diw`, `ci"`, and `ya)` are not implemented
+  as Vim grammar.
+- `v` enters Helix select mode. `V` and `C-v` do not start Vim linewise or
+  blockwise Visual modes.
+- `C-s` keeps the Helix jumplist behavior, not LazyVim's save-file mapping. Use
+  `:write` / `:w` to save, or add a user remap.
+- `K` keeps Helix `keep_selections`, not LazyVim hover.
+- `[e` and `]e` keep Helix tree-sitter entry navigation, not LazyVim
+  severity-specific diagnostic navigation.
 - Multiple selections are preserved where Helix commands naturally support them.
 
 ## Deferred
@@ -109,6 +120,15 @@ explicit parser/state work before Velix can claim closer Vim compatibility:
 - count multiplication such as `2d3w`;
 - text-object operator forms such as `diw`, `ci"`, and `ya)`;
 - register-prefix grammar such as `"ayy` and `"_dd`;
+- Vim named marks and mark jumps such as `ma`, `'a`, and `` `a ``; use the Helix
+  jumplist with `C-s`, `C-o`, `C-i`, and `Space j`;
 - full Vim dot-repeat with `.` beyond the current repeat-last-insert behavior;
 - exact linewise/characterwise register metadata and paste behavior;
 - blockwise Visual mode.
+- LazyVim persistence/session mappings such as `Space q s`, `Space q S`,
+  `Space q l`, and `Space q d`;
+- LazyVim terminal mappings such as `Space f t`, `Space f T`, and `C-/`;
+- LazyVim tab mappings under `Space Tab`; use Velix buffers and windows instead;
+- LazyVim UI toggles under `Space u`;
+- exact LazyVim aliases that Velix can likely add later, such as `gI`, `gK`,
+  `Space c r`, and `Space c f`.

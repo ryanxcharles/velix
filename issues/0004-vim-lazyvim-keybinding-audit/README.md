@@ -105,7 +105,7 @@ documented Helix alternative.
 - [Experiment 3: Audit macro and repeat bindings](03-audit-macro-and-repeat-bindings.md) -
   **Pass**
 - [Experiment 4: Classify remaining grammar and workflows](04-classify-remaining-grammar-and-workflows.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 

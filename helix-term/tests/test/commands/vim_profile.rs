@@ -37,6 +37,13 @@ fn assert_normal_sequence(config: &Config, keys: &str, expected: &[MappableComma
     );
 }
 
+fn assert_normal_missing(config: &Config, keys: &str) {
+    let keys = parse_macro(keys).unwrap();
+    let normal = config.keys.get(&Mode::Normal).unwrap();
+
+    assert_eq!(normal.search(&keys), None);
+}
+
 #[test]
 fn vim_profile_maps_representative_vim_keys() {
     let config = vim_config();
@@ -144,6 +151,78 @@ fn vim_profile_maps_linewise_operator_shortcuts() {
             MappableCommand::change_selection,
         ],
     );
+}
+
+#[test]
+fn vim_profile_classifies_remaining_vim_grammar_gaps() {
+    let config = vim_config();
+
+    assert_normal_missing(&config, "dw");
+    assert_normal_missing(&config, "d$");
+    assert_normal_missing(&config, "cw");
+    assert_normal_missing(&config, "yap");
+    assert_normal_missing(&config, "2d3w");
+
+    assert_normal_missing(&config, "diw");
+    assert_normal_missing(&config, "ci\"");
+    assert_normal_missing(&config, "ya)");
+    assert_normal_command(&config, "ma", MappableCommand::select_textobject_around);
+    assert_normal_command(&config, "mi", MappableCommand::select_textobject_inner);
+
+    assert_normal_command(&config, "\"", MappableCommand::select_register);
+    assert_normal_missing(&config, "\"ayy");
+    assert_normal_missing(&config, "\"_dd");
+
+    assert_normal_command(&config, "v", MappableCommand::select_mode);
+    assert_normal_missing(&config, "V");
+    assert_normal_missing(&config, "<C-v>");
+
+    assert_normal_missing(&config, "'a");
+    assert_normal_missing(&config, "`a");
+    assert_normal_command(&config, "<C-s>", MappableCommand::save_selection);
+    assert_normal_command(&config, "<C-o>", MappableCommand::jump_backward);
+    assert_normal_command(&config, "<C-i>", MappableCommand::jump_forward);
+    assert_normal_command(&config, "<space>j", MappableCommand::jumplist_picker);
+}
+
+#[test]
+fn vim_profile_classifies_remaining_lazyvim_workflow_gaps() {
+    let config = vim_config();
+
+    assert_normal_command(&config, "<C-s>", MappableCommand::save_selection);
+    assert_normal_missing(&config, "<space>qq");
+
+    assert_normal_missing(&config, "<space>qs");
+    assert_normal_missing(&config, "<space>qS");
+    assert_normal_missing(&config, "<space>ql");
+    assert_normal_missing(&config, "<space>qd");
+
+    assert_normal_missing(&config, "<space>ft");
+    assert_normal_missing(&config, "<space>fT");
+    assert_normal_missing(&config, "<C-/>");
+
+    assert_normal_missing(&config, "<space><tab><tab>");
+    assert_normal_missing(&config, "<space><tab>]");
+    assert_normal_missing(&config, "<space><tab>[");
+    assert_normal_missing(&config, "<space><tab>d");
+
+    assert_normal_missing(&config, "<space>uw");
+    assert_normal_missing(&config, "<space>uL");
+    assert_normal_missing(&config, "<space>ud");
+    assert_normal_missing(&config, "<space>uC");
+
+    assert_normal_command(&config, "gD", MappableCommand::goto_declaration);
+    assert_normal_command(&config, "gy", MappableCommand::goto_type_definition);
+    assert_normal_missing(&config, "gI");
+    assert_normal_missing(&config, "gK");
+    assert_normal_command(&config, "K", MappableCommand::keep_selections);
+    assert_normal_missing(&config, "<space>cr");
+    assert_normal_missing(&config, "<space>cf");
+    assert_normal_missing(&config, "<space>cd");
+    assert_normal_command(&config, "[e", MappableCommand::goto_prev_entry);
+    assert_normal_command(&config, "]e", MappableCommand::goto_next_entry);
+    assert_normal_missing(&config, "[w");
+    assert_normal_missing(&config, "]w");
 }
 
 #[tokio::test(flavor = "multi_thread")]
