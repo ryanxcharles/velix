@@ -74,3 +74,50 @@ sections, and no result or implementation is present. It also confirmed prompt
 behavior is handled by `helix-term/src/ui/prompt.rs`, not by Vim
 normal/select/insert keymaps, and that Markdown formatting plus
 `cargo fmt --check` pass in the plan-only state.
+
+## Result
+
+**Result:** Pass
+
+Experiment 6 audited the prompt-command-line slice. Velix prompt behavior is
+implemented in `helix-term/src/ui/prompt.rs`, not through the Vim-profile
+normal/select/insert keymaps. The experiment added search-prompt integration
+tests that prove prompt-local `C-u`, `C-w`, `C-r {register}`, and cursor
+movement controls by observing the resulting search match. The runtime cursor
+movement test covers `C-b` and `C-e`; companion prompt movement keys such as
+`C-f` and `C-a` are recorded from `Prompt::handle_event` source inspection.
+
+The audit also records prompt-local `Esc` / `C-c`, history navigation, and
+completion navigation by source inspection. Those controls are prompt component
+behavior and apply where a prompt has a history register or completion list.
+
+Verification run:
+
+- `cargo fmt`
+  - Pass.
+- `cargo test -p helix-term --features integration --test integration vim_profile -- --nocapture`
+  - Pass: 48 passed, 0 failed, 176 filtered out.
+- `prettier --write --prose-wrap always --print-width 80` on changed Markdown
+  files
+  - Pass.
+
+## Completion Review
+
+Reviewer: separate Codex adversarial reviewer.
+
+Final verdict: Approved after fixes.
+
+The reviewer initially required one audit correction: the prompt cursor-movement
+row claimed both `C-b` and `C-f` were runtime-tested, but only `C-b` was covered
+by the search-prompt integration test. The audit was updated to distinguish
+runtime-tested `C-b` / `C-e` behavior from source-inspected `C-f` / `C-a`
+behavior, and the result text was narrowed to match. The reviewer rechecked the
+source, formatting, and Vim-profile test suite, then approved with no Required
+findings.
+
+## Conclusion
+
+The command/search/prompt requirement is now classified. Search prompt editing
+has executable evidence for common Vim command-line controls where stable, and
+the remaining prompt-local keys are documented from the prompt component rather
+than misclassified as Vim keymap entries.

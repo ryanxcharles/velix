@@ -93,6 +93,22 @@ The Vim profile also supports common insert-mode editing keys:
 | `C-r`               | Insert register contents            |
 | `C-x`               | Invoke Velix completion             |
 
+## Prompt Bindings
+
+Command, search, shell, and similar prompts use Velix's prompt-local editing
+controls rather than Vim normal/select/insert keymaps:
+
+| Key             | Action                                      |
+| --------------- | ------------------------------------------- |
+| `Esc` / `C-c`   | Abort the prompt                            |
+| `C-r {reg}`     | Insert register contents into the prompt    |
+| `C-w`           | Delete the previous prompt word             |
+| `C-u`           | Delete prompt text back to the start        |
+| `C-b` / `C-f`   | Move one prompt character left/right        |
+| `C-a` / `C-e`   | Move to prompt start/end                    |
+| `Up` / `Down`   | Move through prompt history where available |
+| `Tab` / `S-Tab` | Move through prompt completions             |
+
 ## LazyVim-like Bindings
 
 For workflows that are not core Vim editing grammar, the profile adds aliases
@@ -152,6 +168,9 @@ Important first-slice differences:
   next matching character rather than Vim's full word-under-cursor search.
 - Select-mode `n` and `N` use Helix search-extension commands and follow Helix's
   active search direction and selection semantics.
+- Prompt bindings are implemented by Velix's prompt component, not by
+  `[keys.normal]`, `[keys.select]`, or `[keys.insert]`. Tested search-prompt
+  behavior covers `C-u`, `C-w`, `C-r {reg}`, and prompt cursor movement.
 - Select-mode `d`, `c`, `y`, `>`, and `<` operate on Helix selections and return
   to normal mode according to the underlying Helix command behavior.
 - Insert-mode `C-u` uses Velix's `kill_to_line_start` behavior. On indented

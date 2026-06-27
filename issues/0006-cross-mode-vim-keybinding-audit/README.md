@@ -111,7 +111,7 @@ behavior, verification, status, fix, and Helix/Velix alternative.
 - [Experiment 5: Search, jumps, and marks](05-search-jump-and-mark-basics.md) -
   **Pass**
 - [Experiment 6: Prompt command-line basics](06-prompt-command-line-basics.md) -
-  **Designed**
+  **Pass**
 
 ## Constraints
 

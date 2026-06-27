@@ -930,6 +930,94 @@ async fn vim_profile_jumplist_ctrl_o_and_ctrl_i_traverse_saved_jumps() -> anyhow
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_search_prompt_ctrl_u_deletes_prompt_to_start() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            "#[a|]#lpha beta gamma\n",
+            "/nomatch<C-u>gamma<ret>",
+            "#[a|]#lpha beta gamma\n",
+        ),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(11, 16));
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_search_prompt_ctrl_w_deletes_previous_word() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            "#[a|]#lpha gamma beta\n",
+            "/gamma nomatch<C-w><ret>",
+            "#[a|]#lpha gamma beta\n",
+        ),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(6, 12));
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_search_prompt_ctrl_r_inserts_register() -> anyhow::Result<()> {
+    let mut app = AppBuilder::new().with_config(vim_config()).build()?;
+    app.editor.registers.write('a', vec!["beta".to_owned()])?;
+
+    test_key_sequence_with_input_text(
+        Some(app),
+        (
+            indoc! {"\
+                #[a|]#lpha beta
+                "},
+            "/<C-r>a<ret>",
+            indoc! {"\
+                #[a|]#lpha beta
+                "},
+        ),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(register_values(app, 'a'), vec!["beta".to_owned()]);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(6, 10));
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_search_prompt_cursor_movement_controls_edit_position() -> anyhow::Result<()> {
+    test_key_sequence_with_input_text(
+        Some(AppBuilder::new().with_config(vim_config()).build()?),
+        (
+            "#[a|]#lpha beta gamma\n",
+            "/gamma<C-b><C-b><C-b><C-b><C-b>beta <C-e><C-u>beta<ret>",
+            "#[a|]#lpha beta gamma\n",
+        ),
+        &|app| {
+            let (view, doc) = helix_view::current_ref!(app.editor);
+            assert_eq!(doc.selection(view.id).primary(), Range::new(6, 10));
+        },
+        false,
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn vim_profile_records_and_replays_macro_with_vim_keys() -> anyhow::Result<()> {
     test_with_config(
         AppBuilder::new().with_config(vim_config()),
