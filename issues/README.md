@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                                      | Title                           | Opened     |
+| ------------------------------------------------------ | ------------------------------- | ---------- |
+| [0006](0006-cross-mode-vim-keybinding-audit/README.md) | Cross-mode Vim keybinding audit | 2026-06-27 |
 
 ## Closed
 
