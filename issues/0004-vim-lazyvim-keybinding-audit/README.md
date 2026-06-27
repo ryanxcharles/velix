@@ -100,6 +100,8 @@ documented Helix alternative.
 
 - [Experiment 1: Inventory evidence and fix `G`](01-inventory-evidence-and-fix-g.md) -
   **Pass**
+- [Experiment 2: Add exact LazyVim workflow aliases](02-add-exact-lazyvim-workflow-aliases.md) -
+  **Designed**
 
 ## Constraints
 
