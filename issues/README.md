@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                                   | Title                            | Opened     |
+| --------------------------------------------------- | -------------------------------- | ---------- |
+| [0004](0004-vim-lazyvim-keybinding-audit/README.md) | Vim and LazyVim keybinding audit | 2026-06-27 |
 
 ## Closed
 
