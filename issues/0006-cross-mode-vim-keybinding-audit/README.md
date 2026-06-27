@@ -108,6 +108,8 @@ behavior, verification, status, fix, and Helix/Velix alternative.
 - [Experiment 3: Insert-mode basics](03-insert-mode-basics.md) - **Pass**
 - [Experiment 4: Register prefix and paste basics](04-register-prefix-and-paste.md) -
   **Pass**
+- [Experiment 5: Search, jumps, and marks](05-search-jump-and-mark-basics.md) -
+  **Designed**
 
 ## Constraints
 
