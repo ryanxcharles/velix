@@ -423,6 +423,8 @@ pub fn vim() -> HashMap<Mode, KeyTrie> {
                 "G" => vim_goto_line,
                 "H" => goto_previous_buffer,
                 "L" => goto_next_buffer,
+                "q" => vim_record_macro,
+                "@" => vim_replay_macro,
                 "C-r" => redo,
                 "C-h" => jump_view_left,
                 "C-j" => jump_view_down,

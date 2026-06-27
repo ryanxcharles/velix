@@ -94,3 +94,67 @@ Findings:
 Fixes:
 
 - Added both optional clarifications to the design before the plan commit.
+
+## Result
+
+**Result:** Pass
+
+Implemented Vim-style macro key spelling and audited dot-repeat without claiming
+full Vim repeat compatibility.
+
+Changes made:
+
+- Added `vim_record_macro` and `vim_replay_macro` mappable commands.
+- Mapped Vim-profile `q` to `vim_record_macro` and `@` to `vim_replay_macro`.
+- Added keymap assertions for the new Vim macro commands and for inherited `Q`
+  as an explicitly documented Helix fallback.
+- Added an integration test proving `qa...q@a` records and replays a macro from
+  an explicit register. The expected output would differ if the register key
+  were accidentally recorded into the macro body.
+- Added an integration test proving current `.` behavior repeats the last insert
+  change.
+- Added Experiment 3 audit rows for `q{reg}`, stopping with `q`, `@{reg}`, and
+  `.`.
+- Updated the Vim-profile docs with macro keys and the dot-repeat limitation.
+
+Verification run:
+
+- `cargo test -p helix-term --features integration --test integration vim_profile`
+  - passed: 13 tests.
+- `cargo test -p helix-term keymap` - passed: 13 tests.
+- `cargo test -p helix-term config` - passed: 6 tests.
+- `cargo fmt --check` - passed.
+- `prettier --check --prose-wrap always --print-width 80 issues/0004-vim-lazyvim-keybinding-audit/README.md issues/0004-vim-lazyvim-keybinding-audit/03-audit-macro-and-repeat-bindings.md issues/0004-vim-lazyvim-keybinding-audit/audit.md book/src/vim-profile.md`
+  - passed.
+
+Completion review:
+
+- Initial completion review verdict: `CHANGES REQUIRED`.
+- Required finding: the Vim profile still inherited `Q => record_macro` from
+  Helix without audit or documentation, despite the experiment plan requiring an
+  intentional decision if `Q` stayed available.
+- Fix: audited `Q` as `Different by design`, documented it as a direct Helix
+  macro-record fallback, and added a keymap assertion proving the inherited
+  binding is intentional.
+
+After fixing the completion-review finding, reran:
+
+- `cargo test -p helix-term --features integration --test integration vim_profile`
+  - passed: 13 tests.
+- `cargo test -p helix-term keymap` - passed: 13 tests.
+- `cargo test -p helix-term config` - passed: 6 tests.
+- `cargo fmt --check` - passed.
+- `prettier --check --prose-wrap always --print-width 80 issues/0004-vim-lazyvim-keybinding-audit/README.md issues/0004-vim-lazyvim-keybinding-audit/03-audit-macro-and-repeat-bindings.md issues/0004-vim-lazyvim-keybinding-audit/audit.md book/src/vim-profile.md`
+  - passed.
+
+Final completion re-review:
+
+- Reviewer: `Planck` via adversarial-review subagent.
+- Final verdict: `APPROVED`.
+
+## Conclusion
+
+Vim-profile macro recording and replay now use Vim's `q{reg}` and `@{reg}` key
+shape while reusing Velix's existing macro storage and replay machinery. Current
+`.` behavior is verified as repeat-last-insert only; full Vim dot-repeat for
+normal-mode/operator changes remains deferred.

@@ -71,6 +71,9 @@ fn vim_profile_maps_representative_vim_keys() {
     );
     assert_normal_command(&config, "u", MappableCommand::undo);
     assert_normal_command(&config, "<C-r>", MappableCommand::redo);
+    assert_normal_command(&config, "q", MappableCommand::vim_record_macro);
+    assert_normal_command(&config, "Q", MappableCommand::record_macro);
+    assert_normal_command(&config, "@", MappableCommand::vim_replay_macro);
     assert_normal_command(&config, "p", MappableCommand::paste_after);
     assert_normal_command(&config, "P", MappableCommand::paste_before);
 }
@@ -253,6 +256,28 @@ async fn vim_profile_redo_uses_ctrl_r() -> anyhow::Result<()> {
     test_with_config(
         AppBuilder::new().with_config(vim_config()),
         ("#[|]#", "iabc<esc>u<C-r>", "abc#[|\n]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_records_and_replays_macro_with_vim_keys() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "qaib<esc>q@a", "bb#[|\n]#"),
+    )
+    .await?;
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn vim_profile_dot_repeat_replays_last_insert() -> anyhow::Result<()> {
+    test_with_config(
+        AppBuilder::new().with_config(vim_config()),
+        ("#[|]#", "ib<esc>.", "bb#[|\n]#"),
     )
     .await?;
 

@@ -610,6 +610,8 @@ impl MappableCommand {
         decrement, "Decrement item under cursor",
         record_macro, "Record macro",
         replay_macro, "Replay macro",
+        vim_record_macro, "Record Vim macro",
+        vim_replay_macro, "Replay Vim macro",
         command_palette, "Open command palette",
         goto_word, "Jump to a two-character label",
         extend_to_word, "Extend to a two-character label",
@@ -6936,6 +6938,19 @@ fn record_macro(cx: &mut Context) {
     }
 }
 
+fn vim_record_macro(cx: &mut Context) {
+    if cx.editor.macro_recording.is_some() {
+        record_macro(cx);
+    } else {
+        cx.on_next_key(|cx, event| {
+            if let Some(reg) = event.char() {
+                cx.register = Some(reg);
+                record_macro(cx);
+            }
+        });
+    }
+}
+
 fn replay_macro(cx: &mut Context) {
     let reg = cx.register.unwrap_or('@');
 
@@ -6982,6 +6997,15 @@ fn replay_macro(cx: &mut Context) {
         // replaying recursively.
         cx.editor.macro_replaying.pop();
     }));
+}
+
+fn vim_replay_macro(cx: &mut Context) {
+    cx.on_next_key(|cx, event| {
+        if let Some(reg) = event.char() {
+            cx.register = Some(reg);
+            replay_macro(cx);
+        }
+    });
 }
 
 fn goto_word(cx: &mut Context) {

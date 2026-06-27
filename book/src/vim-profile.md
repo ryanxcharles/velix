@@ -32,6 +32,9 @@ close enough for everyday Vim muscle memory:
 | `n/N`     | Repeat search forward/backward              |
 | `u`       | Undo                                        |
 | `C-r`     | Redo                                        |
+| `q{reg}`  | Record macro into register                  |
+| `@{reg}`  | Replay macro from register                  |
+| `.`       | Repeat the last insert change               |
 | `p/P`     | Paste after/before                          |
 | `dd`      | Select the current line and delete it       |
 | `yy`      | Select the current line and yank it         |
@@ -88,6 +91,10 @@ Important first-slice differences:
   pasted line may remain selected according to Helix selection behavior.
 - Paste uses Helix register semantics. Exact Vim linewise versus characterwise
   paste fidelity is deferred.
+- `.` uses Velix's existing repeat-last-insert behavior. Full Vim dot-repeat for
+  arbitrary normal-mode changes and operator forms is deferred.
+- `Q` remains Helix's direct macro-record command as a fallback. Vim-style macro
+  recording should use `q{reg}`.
 - `[g` and `]g` keep Helix/Velix change navigation. LazyVim's comparable
   Gitsigns hunk navigation uses `[h` and `]h`; Velix maps those aliases to the
   same change navigation because it has no Gitsigns hunk command.
@@ -102,6 +109,6 @@ explicit parser/state work before Velix can claim closer Vim compatibility:
 - count multiplication such as `2d3w`;
 - text-object operator forms such as `diw`, `ci"`, and `ya)`;
 - register-prefix grammar such as `"ayy` and `"_dd`;
-- dot-repeat with `.`;
+- full Vim dot-repeat with `.` beyond the current repeat-last-insert behavior;
 - exact linewise/characterwise register metadata and paste behavior;
 - blockwise Visual mode.
