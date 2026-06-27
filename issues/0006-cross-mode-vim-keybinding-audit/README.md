@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-27"
+closed = "2026-06-27"
 +++
 
 # Issue 6: Cross-mode Vim keybinding audit
@@ -112,6 +113,21 @@ behavior, verification, status, fix, and Helix/Velix alternative.
   **Pass**
 - [Experiment 6: Prompt command-line basics](06-prompt-command-line-basics.md) -
   **Pass**
+
+## Conclusion
+
+Issue 6 is complete. The audit now records mode-specific Vim-profile behavior
+across normal, select, insert, search, jump, mark, register, paste, macro,
+repeat, LazyVim-style workflow, and prompt contexts. The motivating failures
+were fixed: normal-mode `V` selects the current line and enters select mode, and
+select-mode `$` extends the active selection to the end of the line.
+
+Executable coverage lives in `helix-term/tests/test/commands/vim_profile.rs`;
+the final targeted verification passed with 48 Vim-profile integration tests.
+The remaining Vim or LazyVim differences are documented as Helix/Velix model
+limits rather than hidden gaps, including operator-pending grammar, blockwise
+Visual mode, named marks, exact linewise/paste metadata, select-mode search
+semantics, and prompt-local command-line behavior.
 
 ## Constraints
 
