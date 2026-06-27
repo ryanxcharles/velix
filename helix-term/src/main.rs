@@ -128,6 +128,13 @@ FLAGS:
             let _ = std::io::stdin().read(&mut []);
             Config::default()
         }
+        Err(ConfigLoadError::BadConfigMessage(err)) => {
+            eprintln!("Bad config: {}", err);
+            eprintln!("Press <ENTER> to continue with default config");
+            use std::io::Read;
+            let _ = std::io::stdin().read(&mut []);
+            Config::default()
+        }
     };
 
     let workspace_trust =

@@ -119,13 +119,13 @@ This experiment passes when all of the following are true:
 
 10. Rust formatting and tests pass:
 
-```bash
-cargo fmt
-cargo fmt --check
-cargo test -p helix-term config
-cargo test -p helix-term keymap
-cargo test -p helix-term --test test vim_profile
-```
+    ```bash
+    cargo fmt
+    cargo fmt --check
+    cargo test -p helix-term config
+    cargo test -p helix-term keymap
+    cargo test -p helix-term --features integration --test integration vim_profile
+    ```
 
 Before implementation begins, this design must be reviewed by another AI agent
 and approved. Record the review result in this file, then commit the approved
@@ -158,3 +158,100 @@ completion reviewers can verify formatting read-only.
 - Fixed the final verification code fence indentation after final approval.
 
 **Final verdict:** Approved. No Required findings remained.
+
+## Result
+
+**Result:** Pass
+
+Implemented an opt-in Vim keymap profile selected with:
+
+```toml
+[editor]
+keymap = "vim"
+```
+
+The profile starts from the default Helix keymap and merges focused Vim-profile
+overrides, so the default profile remains unchanged unless selected. User
+`[keys]` overrides merge on top of the selected profile.
+
+Implemented profile behavior includes:
+
+- Vim-like standalone normal-mode mappings for line/file motions, redo on `C-r`,
+  and existing Helix insert/search/paste behavior.
+- LazyVim-like aliases for finder/search, buffers, diagnostics, LSP
+  actions/symbols, git change navigation/changed files, and windows.
+- First-slice linewise `dd`, `yy`, and `cc` using existing Helix command
+  sequences: `extend_to_line_bounds` followed by delete, yank, or change.
+- User-facing documentation at `book/src/vim-profile.md`, linked from
+  `book/src/SUMMARY.md`, with Vim-like, LazyVim-like, different, and deferred
+  categories.
+
+Verification completed:
+
+- Confirmed empty/default config still resolves to `keymap::default()`.
+- Confirmed `editor.keymap = "vim"` selects the Vim profile.
+- Confirmed local `editor.keymap` overrides global `editor.keymap`.
+- Confirmed unknown keymap profiles are rejected with a clear config error.
+- Confirmed user `[keys]` overrides merge over the selected Vim profile.
+- Confirmed integration tests for representative Vim mappings, every planned
+  LazyVim alias category, `dd`, `yy` followed by `p`, `cc`, `C-r`, default
+  preservation, and user-remap layering.
+- Ran markdown formatting and regenerated the issue index.
+- Ran:
+
+  ```bash
+  cargo fmt
+  cargo fmt --check
+  cargo test -p helix-term config
+  cargo test -p helix-term keymap
+  cargo test -p helix-term --features integration --test integration vim_profile
+  ```
+
+The originally designed command named `--test test`, but this checkout's test
+target is `integration` and its tests are gated by the `integration` feature, so
+the recorded verification command was corrected before completion review.
+
+Manual/editor smoke check:
+
+- Attempted to launch the actual `target/debug/hx` binary in a PTY and through
+  `expect` with `editor.keymap = "vim"`.
+- The environment echoed input instead of yielding reliable editor state, and
+  the smoke file remained unchanged.
+- Because the PTY route was not reliable in this execution environment, the
+  verified editor-behavior evidence is the integration event-loop test harness,
+  which drives real `Application` key events with the Vim profile selected.
+
+## Conclusion
+
+The first implementation slice validates the Issue 1 recommendation: a
+selectable Vim profile can cover many useful bindings through keymap data and
+existing Helix commands, while deeper Vim compatibility remains a separate
+grammar/state problem.
+
+The command-sequence approach is sufficient for a first `dd`/`yy`/`cc` linewise
+slice, but it intentionally preserves Helix selection semantics. Later
+experiments should add explicit Vim grammar/state for operator-pending motions,
+counts, text objects, register prefixes, linewise paste fidelity, and
+dot-repeat.
+
+## Completion Review
+
+**Reviewer:** Fresh-context Codex adversarial reviewer.
+
+**Final verdict:** Approved. No Required, Optional, or Nit findings remained.
+
+The reviewer independently verified:
+
+- `cargo fmt --check`
+- `cargo test -p helix-term config`
+- `cargo test -p helix-term keymap`
+- `cargo test -p helix-term --features integration --test integration vim_profile`
+- `prettier --check --prose-wrap always --print-width 80 ...`
+
+The reviewer confirmed that the experiment file has `Result` and `Conclusion`,
+the issue README marks Experiment 1 as `Pass`, and the result commit had not
+been made before the completion review.
+
+The reviewer accepted the recorded PTY/`expect` smoke-check limitation because
+the integration harness drives real `Application` key events with the Vim
+profile selected.

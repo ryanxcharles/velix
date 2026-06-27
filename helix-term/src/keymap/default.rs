@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::macros::keymap;
-use super::{KeyTrie, Mode};
+use super::{merge_keys, KeyTrie, Mode};
 use helix_core::hashmap;
 
 pub fn default() -> HashMap<Mode, KeyTrie> {
@@ -409,4 +409,70 @@ pub fn default() -> HashMap<Mode, KeyTrie> {
         Mode::Select => select,
         Mode::Insert => insert,
     )
+}
+
+pub fn vim() -> HashMap<Mode, KeyTrie> {
+    let mut keys = default();
+    merge_keys(
+        &mut keys,
+        hashmap! {
+            Mode::Normal => keymap!({ "Vim normal mode"
+                "0" => goto_line_start,
+                "^" => goto_first_nonwhitespace,
+                "$" => goto_line_end,
+                "H" => goto_previous_buffer,
+                "L" => goto_next_buffer,
+                "C-r" => redo,
+                "C-h" => jump_view_left,
+                "C-j" => jump_view_down,
+                "C-k" => jump_view_up,
+                "C-l" => jump_view_right,
+                "d" => { "Vim delete"
+                    "d" => [extend_to_line_bounds, delete_selection],
+                },
+                "y" => { "Vim yank"
+                    "y" => [extend_to_line_bounds, yank],
+                },
+                "c" => { "Vim change"
+                    "c" => [extend_to_line_bounds, change_selection],
+                },
+                "space" => { "Vim leader"
+                    "space" => file_picker,
+                    "/" => global_search,
+                    "f" => { "Find"
+                        "f" => file_picker,
+                        "F" => file_picker_in_current_directory,
+                        "g" => changed_file_picker,
+                    },
+                    "b" => { "Buffer"
+                        "b" => buffer_picker,
+                        "n" => goto_next_buffer,
+                        "p" => goto_previous_buffer,
+                    },
+                    "x" => { "Diagnostics"
+                        "x" => diagnostics_picker,
+                        "X" => workspace_diagnostics_picker,
+                    },
+                    "s" => { "Symbols"
+                        "s" => lsp_or_syntax_symbol_picker,
+                        "S" => lsp_or_syntax_workspace_symbol_picker,
+                    },
+                    "g" => { "Git"
+                        "g" => changed_file_picker,
+                    },
+                    "a" => code_action,
+                    "w" => { "Window"
+                        "d" => wclose,
+                        "s" => hsplit,
+                        "v" => vsplit,
+                        "h" => jump_view_left,
+                        "j" => jump_view_down,
+                        "k" => jump_view_up,
+                        "l" => jump_view_right,
+                    },
+                },
+            }),
+        },
+    );
+    keys
 }

@@ -129,4 +129,4 @@ experiment. The documentation should include at least these categories:
 ## Experiments
 
 - [Experiment 1: Selectable Vim profile](01-selectable-vim-profile.md) -
-  **Designed**
+  **Pass**
