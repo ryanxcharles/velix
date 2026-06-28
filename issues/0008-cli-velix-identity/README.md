@@ -54,4 +54,4 @@ output and cannot be overridden cleanly.
 ## Experiments
 
 - [Experiment 1: Replace CLI identity strings](01-replace-cli-identity-strings.md) -
-  **Designed**
+  **Pass**

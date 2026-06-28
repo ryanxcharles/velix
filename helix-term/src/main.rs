@@ -4,6 +4,9 @@ use helix_term::application::Application;
 use helix_term::args::Args;
 use helix_term::config::{Config, ConfigLoadError};
 
+const CLI_NAME: &str = "velix";
+const CLI_DESCRIPTION: &str = "Velix editor.";
+
 fn setup_logging(verbosity: u64) -> Result<()> {
     let level = match verbosity {
         0 => log::LevelFilter::Warn,
@@ -64,17 +67,17 @@ FLAGS:
     +[N]                           Open the first given file at line number N, or the last line, if
                                    N is not specified.
 ",
-            env!("CARGO_PKG_NAME"),
+            CLI_NAME,
             VERSION_AND_GIT_HASH,
             env!("CARGO_PKG_AUTHORS"),
-            env!("CARGO_PKG_DESCRIPTION"),
+            CLI_DESCRIPTION,
             helix_loader::default_log_file().display(),
         );
         std::process::exit(0);
     }
 
     if args.display_version {
-        println!("helix {}", VERSION_AND_GIT_HASH);
+        println!("{} {}", CLI_NAME, VERSION_AND_GIT_HASH);
         std::process::exit(0);
     }
 
@@ -152,7 +155,7 @@ FLAGS:
 
     // TODO: use the thread local executor to spawn the application task separately from the work pool
     let mut app = Application::new(args, config, lang_loader, workspace_trust)
-        .context("unable to start Helix")?;
+        .context("unable to start Velix")?;
     let mut events = app.event_stream();
 
     let exit_code = app.run(&mut events).await?;
