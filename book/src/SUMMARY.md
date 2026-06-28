@@ -20,6 +20,7 @@
   - [Workspace trust](./workspace-trust.md)
 - [Ecosystem](./ecosystem.md)
   - [Migrating from Vim](./from-vim.md)
+  - [Vim Profile](./vim-profile.md)
   - [Helix mode in other software](./other-software.md)
 - [Configuration](./configuration.md)
   - [Editor](./editor.md)

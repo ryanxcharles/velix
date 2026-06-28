@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::macros::keymap;
-use super::{KeyTrie, Mode};
+use super::{merge_keys, KeyTrie, Mode};
 use helix_core::hashmap;
 
 pub fn default() -> HashMap<Mode, KeyTrie> {
@@ -409,4 +409,103 @@ pub fn default() -> HashMap<Mode, KeyTrie> {
         Mode::Select => select,
         Mode::Insert => insert,
     )
+}
+
+pub fn vim() -> HashMap<Mode, KeyTrie> {
+    let mut keys = default();
+    merge_keys(
+        &mut keys,
+        hashmap! {
+            Mode::Normal => keymap!({ "Vim normal mode"
+                "0" => goto_line_start,
+                "^" => goto_first_nonwhitespace,
+                "$" => goto_line_end,
+                "G" => vim_goto_line,
+                "V" => [extend_to_line_bounds, select_mode],
+                "H" => goto_previous_buffer,
+                "L" => goto_next_buffer,
+                "q" => vim_record_macro,
+                "@" => vim_replay_macro,
+                "C-r" => redo,
+                "C-h" => jump_view_left,
+                "C-j" => jump_view_down,
+                "C-k" => jump_view_up,
+                "C-l" => jump_view_right,
+                "g" => { "Vim goto"
+                    "I" => goto_implementation,
+                    "K" => signature_help,
+                },
+                "[" => { "Vim previous"
+                    "b" => goto_previous_buffer,
+                    "h" => goto_prev_change,
+                },
+                "]" => { "Vim next"
+                    "b" => goto_next_buffer,
+                    "h" => goto_next_change,
+                },
+                "d" => { "Vim delete"
+                    "d" => [extend_to_line_bounds, delete_selection],
+                },
+                "y" => { "Vim yank"
+                    "y" => [extend_to_line_bounds, yank],
+                },
+                "c" => { "Vim change"
+                    "c" => [extend_to_line_bounds, change_selection],
+                },
+                "space" => { "Vim leader"
+                    "space" => file_picker,
+                    "," => buffer_picker,
+                    "/" => global_search,
+                    "-" => hsplit,
+                    "|" => vsplit,
+                    "f" => { "Find"
+                        "f" => file_picker,
+                        "F" => file_picker_in_current_directory,
+                        "g" => changed_file_picker,
+                    },
+                    "b" => { "Buffer"
+                        "b" => buffer_picker,
+                        "n" => goto_next_buffer,
+                        "p" => goto_previous_buffer,
+                    },
+                    "x" => { "Diagnostics"
+                        "x" => diagnostics_picker,
+                        "X" => workspace_diagnostics_picker,
+                    },
+                    "c" => { "Code"
+                        "a" => code_action,
+                        "r" => rename_symbol,
+                    },
+                    "s" => { "Symbols"
+                        "s" => lsp_or_syntax_symbol_picker,
+                        "S" => lsp_or_syntax_workspace_symbol_picker,
+                    },
+                    "g" => { "Git"
+                        "g" => changed_file_picker,
+                    },
+                    "a" => code_action,
+                    "w" => { "Window"
+                        "d" => wclose,
+                        "s" => hsplit,
+                        "v" => vsplit,
+                        "h" => jump_view_left,
+                        "j" => jump_view_down,
+                        "k" => jump_view_up,
+                        "l" => jump_view_right,
+                    },
+                },
+            }),
+            Mode::Select => keymap!({ "Vim select mode"
+                "0" => extend_to_line_start,
+                "^" => extend_to_first_nonwhitespace,
+                "$" => extend_to_line_end,
+                "G" => vim_extend_to_line,
+                "o" => flip_selections,
+            }),
+            Mode::Insert => keymap!({ "Vim insert mode"
+                "C-[" => normal_mode,
+            }),
+        },
+    );
+    keys
 }

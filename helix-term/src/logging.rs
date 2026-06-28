@@ -1,4 +1,4 @@
-//! Logging support for `hx`.
+//! Logging support for the terminal editor binary.
 
 use std::io::Write;
 use std::path::Path;

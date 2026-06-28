@@ -435,6 +435,8 @@ impl MappableCommand {
         goto_implementation, "Goto implementation",
         goto_file_start, "Goto line number `<n>` else file start",
         goto_file_end, "Goto file end",
+        vim_goto_line, "Goto line number `<n>` else file end",
+        vim_extend_to_line, "Extend to line number `<n>` else file end",
         extend_to_file_start, "Extend to line number `<n>` else file start",
         extend_to_file_end, "Extend to file end",
         goto_file, "Goto files/URLs in selections",
@@ -609,6 +611,8 @@ impl MappableCommand {
         decrement, "Decrement item under cursor",
         record_macro, "Record macro",
         replay_macro, "Replay macro",
+        vim_record_macro, "Record Vim macro",
+        vim_replay_macro, "Replay Vim macro",
         command_palette, "Open command palette",
         goto_word, "Jump to a two-character label",
         extend_to_word, "Extend to a two-character label",
@@ -3972,6 +3976,22 @@ fn goto_line(cx: &mut Context) {
     goto_line_impl(cx, Movement::Move);
 }
 
+fn vim_goto_line(cx: &mut Context) {
+    if cx.count.is_some() {
+        goto_line_impl(cx, Movement::Move);
+    } else {
+        goto_last_line_impl(cx, Movement::Move)
+    }
+}
+
+fn vim_extend_to_line(cx: &mut Context) {
+    if cx.count.is_some() {
+        goto_line_impl(cx, Movement::Extend);
+    } else {
+        goto_last_line_impl(cx, Movement::Extend)
+    }
+}
+
 fn goto_line_impl(cx: &mut Context, movement: Movement) {
     if cx.count.is_some() {
         let (view, doc) = current!(cx.editor);
@@ -6927,6 +6947,19 @@ fn record_macro(cx: &mut Context) {
     }
 }
 
+fn vim_record_macro(cx: &mut Context) {
+    if cx.editor.macro_recording.is_some() {
+        record_macro(cx);
+    } else {
+        cx.on_next_key(|cx, event| {
+            if let Some(reg) = event.char() {
+                cx.register = Some(reg);
+                record_macro(cx);
+            }
+        });
+    }
+}
+
 fn replay_macro(cx: &mut Context) {
     let reg = cx.register.unwrap_or('@');
 
@@ -6973,6 +7006,15 @@ fn replay_macro(cx: &mut Context) {
         // replaying recursively.
         cx.editor.macro_replaying.pop();
     }));
+}
+
+fn vim_replay_macro(cx: &mut Context) {
+    cx.on_next_key(|cx, event| {
+        if let Some(reg) = event.char() {
+            cx.register = Some(reg);
+            replay_macro(cx);
+        }
+    });
 }
 
 fn goto_word(cx: &mut Context) {

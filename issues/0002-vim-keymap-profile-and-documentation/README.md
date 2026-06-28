@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-27"
+closed = "2026-06-27"
 +++
 
 # Issue 2: Vim keymap profile and documentation
@@ -125,3 +126,25 @@ experiment. The documentation should include at least these categories:
 - What test helpers are sufficient for profile-specific keybinding behavior?
 - Where should compatibility documentation live: `book/`, `docs/`, `runtime/`,
   or a combination of user-facing docs plus issue-local implementation notes?
+
+## Experiments
+
+- [Experiment 1: Selectable Vim profile](01-selectable-vim-profile.md) -
+  **Pass**
+
+## Conclusion
+
+Issue 2 is solved by [Experiment 1](01-selectable-vim-profile.md). Velix now has
+an opt-in `editor.keymap = "vim"` profile that keeps the default Helix-style
+keymap unchanged unless selected, merges user `[keys]` overrides on top of the
+selected profile, and rejects unknown profile names clearly.
+
+The first profile implements low-risk Vim-like standalone normal-mode bindings,
+LazyVim-like workflow aliases for existing Helix features, and a minimal
+linewise `dd`/`yy`/`cc` slice using existing Helix command sequences. The
+behavior is documented in `book/src/vim-profile.md`, including the current
+Helix-semantic differences and deferred grammar work.
+
+Further Vim compatibility should continue in new issues. The next major work is
+explicit Vim grammar/state for operator-pending motions, counts, text objects,
+register prefixes, dot-repeat, and more exact linewise paste/register fidelity.

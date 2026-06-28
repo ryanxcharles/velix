@@ -24,11 +24,26 @@ pub struct ConfigRaw {
     pub editor: Option<toml::Value>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum KeymapProfile {
+    Default,
+    Vim,
+}
+
+impl KeymapProfile {
+    fn base_keys(self) -> HashMap<Mode, KeyTrie> {
+        match self {
+            KeymapProfile::Default => keymap::default(),
+            KeymapProfile::Vim => keymap::vim(),
+        }
+    }
+}
+
 impl Default for Config {
     fn default() -> Config {
         Config {
             theme: None,
-            keys: keymap::default(),
+            keys: keymap::vim(),
             editor: helix_view::editor::Config::default(),
         }
     }
@@ -37,6 +52,7 @@ impl Default for Config {
 #[derive(Debug)]
 pub enum ConfigLoadError {
     BadConfig(TomlError),
+    BadConfigMessage(String),
     Error(IOError),
 }
 
@@ -50,8 +66,35 @@ impl Display for ConfigLoadError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ConfigLoadError::BadConfig(err) => err.fmt(f),
+            ConfigLoadError::BadConfigMessage(err) => err.fmt(f),
             ConfigLoadError::Error(err) => err.fmt(f),
         }
+    }
+}
+
+fn take_keymap_profile(
+    editor: &mut Option<toml::Value>,
+) -> Result<Option<KeymapProfile>, ConfigLoadError> {
+    let Some(toml::Value::Table(editor)) = editor.as_mut() else {
+        return Ok(None);
+    };
+
+    let Some(value) = editor.remove("keymap") else {
+        return Ok(None);
+    };
+
+    let Some(profile) = value.as_str() else {
+        return Err(ConfigLoadError::BadConfigMessage(
+            "editor.keymap must be one of: \"default\", \"vim\"".to_string(),
+        ));
+    };
+
+    match profile {
+        "default" => Ok(Some(KeymapProfile::Default)),
+        "vim" => Ok(Some(KeymapProfile::Vim)),
+        other => Err(ConfigLoadError::BadConfigMessage(format!(
+            "unknown editor.keymap profile '{other}', expected one of: \"default\", \"vim\""
+        ))),
     }
 }
 
@@ -65,8 +108,13 @@ impl Config {
         let local_config: Result<ConfigRaw, ConfigLoadError> =
             local.and_then(|file| toml::from_str(&file).map_err(ConfigLoadError::BadConfig));
         let res = match (global_config, local_config) {
-            (Ok(global), Ok(local)) => {
-                let mut keys = keymap::default();
+            (Ok(mut global), Ok(mut local)) => {
+                let global_keymap_profile = take_keymap_profile(&mut global.editor)?;
+                let local_keymap_profile = take_keymap_profile(&mut local.editor)?;
+                let mut keys = local_keymap_profile
+                    .or(global_keymap_profile)
+                    .unwrap_or(KeymapProfile::Vim)
+                    .base_keys();
                 if let Some(global_keys) = global.keys {
                     merge_keys(&mut keys, global_keys)
                 }
@@ -95,8 +143,10 @@ impl Config {
             | (Err(ConfigLoadError::BadConfig(err)), _) => {
                 return Err(ConfigLoadError::BadConfig(err))
             }
-            (Ok(config), Err(_)) | (Err(_), Ok(config)) => {
-                let mut keys = keymap::default();
+            (Ok(mut config), Err(_)) | (Err(_), Ok(mut config)) => {
+                let mut keys = take_keymap_profile(&mut config.editor)?
+                    .unwrap_or(KeymapProfile::Vim)
+                    .base_keys();
                 if let Some(keymap) = config.keys {
                     merge_keys(&mut keys, keymap);
                 }
@@ -176,7 +226,7 @@ mod tests {
             A-F12 = "move_next_word_end"
         "#;
 
-        let mut keys = keymap::default();
+        let mut keys = keymap::vim();
         merge_keys(
             &mut keys,
             hashmap! {
@@ -203,10 +253,90 @@ mod tests {
     fn keys_resolve_to_correct_defaults() {
         // From serde default
         let default_keys = Config::load_test("").keys;
-        assert_eq!(default_keys, keymap::default());
+        assert_eq!(default_keys, keymap::vim());
 
         // From the Default trait
         let default_keys = Config::default().keys;
-        assert_eq!(default_keys, keymap::default());
+        assert_eq!(default_keys, keymap::vim());
+    }
+
+    #[test]
+    fn default_keymap_profile_can_be_selected() {
+        let config = Config::load_test(
+            r#"
+            [editor]
+            keymap = "default"
+        "#,
+        );
+
+        assert_eq!(config.keys, keymap::default());
+    }
+
+    #[test]
+    fn vim_keymap_profile_can_be_selected() {
+        let config = Config::load_test(
+            r#"
+            [editor]
+            keymap = "vim"
+        "#,
+        );
+
+        assert_eq!(config.keys, keymap::vim());
+    }
+
+    #[test]
+    fn local_keymap_profile_overrides_global_profile() {
+        let global = r#"
+            [editor]
+            keymap = "vim"
+        "#
+        .to_owned();
+        let local = r#"
+            [editor]
+            keymap = "default"
+        "#
+        .to_owned();
+
+        let config = Config::load(Ok(&global), Ok(local)).unwrap();
+
+        assert_eq!(config.keys, keymap::default());
+    }
+
+    #[test]
+    fn user_keys_merge_over_selected_keymap_profile() {
+        use crate::commands::MappableCommand;
+        use helix_view::document::Mode;
+        use helix_view::input::parse_macro;
+
+        let config = Config::load_test(
+            r#"
+            [keys.normal]
+            "$" = "goto_line_start"
+        "#,
+        );
+        let normal = config.keys.get(&Mode::Normal).unwrap();
+        let dollar = parse_macro("$").unwrap();
+        let redo = parse_macro("<C-r>").unwrap();
+
+        assert_eq!(
+            normal.search(&dollar),
+            Some(&KeyTrie::MappableCommand(MappableCommand::goto_line_start))
+        );
+        assert_eq!(
+            normal.search(&redo),
+            Some(&KeyTrie::MappableCommand(MappableCommand::redo))
+        );
+    }
+
+    #[test]
+    fn unknown_keymap_profile_is_rejected() {
+        let config = r#"
+            [editor]
+            keymap = "emacs"
+        "#
+        .to_owned();
+        let err = Config::load(Ok(&config), Err(ConfigLoadError::default())).unwrap_err();
+
+        assert!(err.to_string().contains("unknown editor.keymap profile"));
     }
 }
