@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-28"
+closed = "2026-06-28"
 +++
 
 # Issue 7: Rename binary to vlx
@@ -47,3 +48,14 @@ clear binary name to avoid documenting multiple entrypoints prematurely.
 
 - [Experiment 1: Rename the terminal executable](01-rename-terminal-executable.md) -
   **Pass**
+
+## Conclusion
+
+Issue 7 is complete. Velix now builds and runs the terminal editor binary as
+`vlx`, with Cargo metadata, release artifacts, launcher files, shell
+completions, desktop/appstream metadata, Nix metadata, CLI help, runtime error
+text, runtime tutor text, and repository-owned user/developer invocation docs
+updated to match.
+
+The final verified release artifact is `target/release/vlx`, and Cargo metadata
+reports the `helix-term` binary target and default run target as `vlx`.
