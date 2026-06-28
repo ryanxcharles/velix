@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                         | Title              | Opened     |
+| ----------------------------------------- | ------------------ | ---------- |
+| [0008](0008-cli-velix-identity/README.md) | CLI Velix identity | 2026-06-28 |
 
 ## Closed
 
