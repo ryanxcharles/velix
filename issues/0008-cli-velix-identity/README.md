@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-28"
+closed = "2026-06-28"
 +++
 
 # Issue 8: CLI Velix identity
@@ -55,3 +56,13 @@ output and cannot be overridden cleanly.
 
 - [Experiment 1: Replace CLI identity strings](01-replace-cli-identity-strings.md) -
   **Pass**
+
+## Conclusion
+
+Issue 8 is complete. The `vlx` binary now reports Velix identity in `--version`
+and `--help`, no longer prints `helix`, `helix-term`, or the inherited upstream
+description in those CLI identity paths, and keeps the `vlx [FLAGS] [files]...`
+usage line from Issue 7.
+
+Internal `helix-*` crate/module names and compatibility surfaces remain
+unchanged because they are not the CLI-facing product identity.

@@ -2,14 +2,14 @@
 
 ## Open
 
-| #                                         | Title              | Opened     |
-| ----------------------------------------- | ------------------ | ---------- |
-| [0008](0008-cli-velix-identity/README.md) | CLI Velix identity | 2026-06-28 |
+| #   | Title | Opened |
+| --- | ----- | ------ |
 
 ## Closed
 
 | #                                                           | Title                                | Opened     | Closed     |
 | ----------------------------------------------------------- | ------------------------------------ | ---------- | ---------- |
+| [0008](0008-cli-velix-identity/README.md)                   | CLI Velix identity                   | 2026-06-28 | 2026-06-28 |
 | [0007](0007-rename-binary-to-vlx/README.md)                 | Rename binary to vlx                 | 2026-06-28 | 2026-06-28 |
 | [0006](0006-cross-mode-vim-keybinding-audit/README.md)      | Cross-mode Vim keybinding audit      | 2026-06-27 | 2026-06-27 |
 | [0005](0005-default-vim-keymap/README.md)                   | Default Vim keymap                   | 2026-06-27 | 2026-06-27 |
