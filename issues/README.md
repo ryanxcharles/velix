@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                           | Title                | Opened     |
+| ------------------------------------------- | -------------------- | ---------- |
+| [0007](0007-rename-binary-to-vlx/README.md) | Rename binary to vlx | 2026-06-28 |
 
 ## Closed
 
