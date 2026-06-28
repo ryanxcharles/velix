@@ -46,4 +46,4 @@ clear binary name to avoid documenting multiple entrypoints prematurely.
 ## Experiments
 
 - [Experiment 1: Rename the terminal executable](01-rename-terminal-executable.md) -
-  **Designed**
+  **Pass**

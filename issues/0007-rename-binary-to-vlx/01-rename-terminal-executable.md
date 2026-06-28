@@ -66,3 +66,51 @@ stale-`hx` search over the authoritative binary-entrypoint surface.
 
 The same reviewer re-reviewed the revised design and approved it with no
 required findings remaining.
+
+## Result
+
+**Result:** Pass
+
+The terminal executable was renamed to `vlx` across the Cargo binary target,
+Cargo default run target, Debian package assets, launcher, shell completions,
+desktop/appstream metadata, Nix package metadata, CLI help usage, user-facing
+build/install/usage docs, contributor docs, and runtime tutor text.
+
+Verification completed:
+
+- `cargo fmt` and `cargo fmt --check` passed.
+- `prettier --write` and `prettier --check --prose-wrap always --print-width 80`
+  passed for edited Markdown files.
+- `cargo build -p helix-term --release --locked` passed.
+- `test -x target/release/vlx` passed; `target/release/vlx` exists and is
+  executable.
+- `target/release/vlx --version` launched successfully.
+- `target/release/vlx --help` shows `vlx [FLAGS] [files]...` in the usage line.
+- `cargo metadata --no-deps --format-version 1` reports `default_run = "vlx"`
+  and the `helix-term` binary target list as `["vlx"]`.
+- `cargo run -p helix-term -- --version` runs `target/debug/vlx --version`,
+  confirming Cargo's default-run path.
+- The stale-`hx` search over `book/`, `docs/`, `runtime/tutor`, `contrib/`,
+  `default.nix`, `helix-loader/src/grammar.rs`, `helix-term/src/main.rs`, and
+  `helix-term/src/logging.rs`, and `helix-term/Cargo.toml` found only upstream
+  package-manager references and the `lite-modal-hx` plugin name, not Velix
+  binary-entrypoint references.
+
+## Conclusion
+
+`vlx` is now the primary Velix executable name. The remaining `hx` references in
+the searched surface are preserved because they describe upstream Helix package
+manager behavior or an external plugin name, not the Velix binary.
+
+## Completion Review
+
+**Reviewer:** separate Codex adversarial-review agent
+
+**Verdict:** Approved
+
+The reviewer initially found one required stale runtime message in
+`helix-loader/src/grammar.rs`, where grammar error text still suggested
+`hx --grammar fetch`, and one optional stale source comment in
+`helix-term/src/logging.rs`. Both were fixed. The reviewer re-reviewed the
+result, independently verified the fixes and stale-reference search, and
+approved the completed experiment with no required findings remaining.
