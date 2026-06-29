@@ -148,3 +148,144 @@ Review artifacts:
 - Initial raw output: `logs/claude-review/20260629-063522-785774-stdout.json`
 - Re-review prompt: `logs/claude-review/20260629-063823-717463-prompt.md`
 - Re-review raw output: `logs/claude-review/20260629-063823-717463-stdout.json`
+
+## Result
+
+**Result:** Pass
+
+Published Velix `0.1.0` to GitHub and Homebrew.
+
+Release artifacts:
+
+- Source repo: `https://github.com/astrohackerlabs/velix`
+- Release tag: `v0.1.0`
+- Tag object: `fa0a451b8c425bcbf3a636eea1667ec9632c3de0`
+- Tag target commit: `cdd951f8`
+- Release URL: `https://github.com/astrohackerlabs/velix/releases/tag/v0.1.0`
+- Release asset:
+  `https://github.com/astrohackerlabs/velix/releases/download/v0.1.0/velix-0.1.0-arm64-apple-darwin.tar.gz`
+- Release asset SHA256:
+  `2187b6f549204b6e43aeea1d6c08a02501d5014bf1a01cd9b1d0a79aad08aec0`
+- Release asset size: `28023120`
+- Tap repo: `https://github.com/astrohackerlabs/homebrew-velix`
+- Tap commit: `3159656 Publish Velix 0.1.0 formula`
+
+Implementation notes:
+
+- `git status --short --untracked-files=all` was clean before packaging.
+- `scripts/release.sh 0.1.0` passed without `VELIX_RELEASE_ALLOW_DIRTY=1`.
+- The generated archive was not regenerated after SHA calculation. The same
+  tarball was uploaded to the GitHub Release, referenced in the formula,
+  install-tested locally, pushed in the tap, and install-tested publicly.
+- `git push upstream main` pushed `main` to
+  `git@github.com:astrohackerlabs/velix.git`.
+- `git tag -s v0.1.0` failed because no GPG secret key was available for
+  `Ryan X. Charles <ryan@ryanxcharles.com>`. Used annotated unsigned tag
+  `git tag -a v0.1.0 -m 'Velix 0.1.0'`.
+- `git push upstream v0.1.0` published the tag to `astrohackerlabs/velix`.
+- `gh release create v0.1.0 ... --repo astrohackerlabs/velix` created the
+  release and uploaded the archive.
+- Downloading the public release asset and hashing it returned the same SHA:
+  `2187b6f549204b6e43aeea1d6c08a02501d5014bf1a01cd9b1d0a79aad08aec0`.
+- `gh repo create astrohackerlabs/homebrew-velix --public --clone=false` created
+  the public tap repo.
+- The final formula uses the public release asset URL, the same SHA,
+  `depends_on "rust" => :build`, `depends_on arch: :arm64`, and
+  `depends_on :macos`.
+
+Local final-formula test before tap push:
+
+- Local tap formula commit before push: `3159656 Publish Velix 0.1.0 formula`
+- `brew audit --strict --online astrohackerlabs/velix/velix` passed after
+  retapping from `/Users/astrohacker/dev/homebrew-velix`. Path-based audit was
+  unavailable in this Homebrew version, which reported:
+  `Calling brew audit [path ...] is disabled`.
+- The tapped local clone contained:
+  - public release URL;
+  - public SHA;
+  - `depends_on "rust" => :build`;
+  - `depends_on arch: :arm64`;
+  - `depends_on :macos`.
+- `brew install --build-from-source astrohackerlabs/velix/velix` passed from the
+  unpushed local tap formula.
+- `$(brew --prefix)/bin/vlx --version` printed `velix 0.1.0`.
+- `$(brew --prefix)/bin/vlx --health rust` showed tree-sitter parser and query
+  support available.
+- `brew test astrohackerlabs/velix/velix` passed.
+
+Public tap verification:
+
+- `git -C ~/dev/homebrew-velix status --short --untracked-files=all` was clean.
+- `git -C ~/dev/homebrew-velix push -u origin main` pushed the tap to
+  `git@github.com:astrohackerlabs/homebrew-velix.git`.
+- Clean public install flow removed the local install and tap, then ran:
+  - `brew tap astrohackerlabs/velix`;
+  - `brew install --build-from-source astrohackerlabs/velix/velix`.
+- The public tap clone remote was
+  `https://github.com/astrohackerlabs/homebrew-velix`.
+- The public tap clone was at commit `3159656`.
+- Public installed binary: `/opt/homebrew/bin/vlx`
+- `$(brew --prefix)/bin/vlx --version` printed `velix 0.1.0`.
+- `$(brew --prefix)/bin/vlx --help` printed the Velix help text.
+- `$(brew --prefix)/bin/vlx --health rust` showed:
+  - `Tree-sitter parser` available;
+  - `Highlight queries` available;
+  - `Textobject queries` available;
+  - `Indent queries` available;
+  - `Tags queries` available;
+  - `Rainbow queries` available.
+- Installed runtime path: `/opt/homebrew/Cellar/velix/0.1.0/libexec/runtime`
+- Installed grammar count: `293`
+- Installed Rust grammar:
+  `/opt/homebrew/Cellar/velix/0.1.0/libexec/runtime/grammars/rust.dylib`
+- Installed Cellar size: `2.3G`
+- `brew test astrohackerlabs/velix/velix` passed.
+- `gh release view v0.1.0 --repo astrohackerlabs/velix --json url,tagName,assets`
+  confirmed the release and asset digest.
+- `gh repo view astrohackerlabs/homebrew-velix --json nameWithOwner,url`
+  confirmed the tap repo.
+- `scripts/build-issues-index.sh` passed with `1 open, 9 closed`.
+- `git diff --check` passed.
+
+No separate closed-source repo or public mirror repo was created. No Helix
+version is used as the Velix release version.
+
+## Conclusion
+
+The public Homebrew release works on the target macOS arm64 machine. Users can
+install Velix with:
+
+```bash
+brew tap astrohackerlabs/velix
+brew install astrohackerlabs/velix/velix
+```
+
+The first formula intentionally targets macOS arm64 because the release archive
+bundles macOS arm64 grammar libraries. Future release work should either teach
+the release script to generate the public formula directly, publish per-platform
+artifacts, or move grammar building into the formula to reduce platform coupling
+and the `2.3G` installed size.
+
+## Completion Review
+
+External Claude review via `skills/claude-review`: **Approved**.
+
+Claude confirmed that the SHA chain is sound, the public formula was tested
+before the tap push, the public install surface works from the GitHub tap, the
+tag and release target are coherent, and the documented deviations from the
+design are reasonable.
+
+Non-blocking notes:
+
+- Record this completion review before committing the result.
+- Close the issue after the result commit.
+- When closing, explicitly note that the clean install flow verified uninstall
+  and retap cleanup by removing the prior local install and tap before the
+  public install.
+- Keep the macOS arm64 platform coupling and `2.3G` installed size as
+  carry-forward release work.
+
+Review artifacts:
+
+- Prompt: `logs/claude-review/20260629-064847-154580-prompt.md`
+- Raw output: `logs/claude-review/20260629-064847-154580-stdout.json`

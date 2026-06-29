@@ -105,7 +105,7 @@ Design and implement the release in experiments, one step at a time:
 - [Experiment 1: Prepare local 0.1.0 Homebrew release](exp-0001-publish-0-1-0-homebrew.md)
   - **Pass**
 - [Experiment 2: Publish public 0.1.0 Homebrew release](exp-0002-publish-public-homebrew-release.md)
-  - **Designed**
+  - **Pass**
 
 ## Constraints
 
