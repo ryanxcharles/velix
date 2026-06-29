@@ -1,6 +1,8 @@
 +++
 status = "open"
 opened = "2026-06-29"
+workflow = "issues-and-experiments"
+review_mode = "same-agent"
 +++
 
 # Issue 9: Import TermSurf Workflow
@@ -49,4 +51,4 @@ The migration should:
 ## Experiments
 
 - [Experiment 1: Import TermSurf workflow files](01-import-termsurf-workflow-files.md) -
-  **Designed**
+  **Pass**

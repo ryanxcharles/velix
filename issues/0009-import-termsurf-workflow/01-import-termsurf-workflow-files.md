@@ -104,3 +104,67 @@ Re-review: **Approved**. The reviewer confirmed the updated verification checks
 preservation of Velix-specific `AGENTS.md` rules/project notes and adds
 historical issue diff plus before/after filename validation for historical
 experiment records.
+
+## Result
+
+**Result:** Pass
+
+Imported and adapted the TermSurf workflow layer into Velix:
+
+- `AGENTS.md` now preserves Velix's project rules and notes while routing
+  detailed issue, experiment, review, and epic procedures to skills.
+- `epics/README.md`, `epics/0000-template/README.md`, and
+  `scripts/build-epics-index.sh` add the epic planning layer and generated epic
+  index.
+- `skills/issues-and-experiments`, `skills/manual-issues-and-experiments`,
+  `skills/epics`, `skills/orthogonal-review`, `skills/claude-review`,
+  `skills/codex-review`, and `skills/create-skill` were imported or adapted for
+  Velix.
+- `skills/adversarial-review` and `.claude/agents/adversarial-reviewer.md` now
+  use the newer review-mode taxonomy and Velix-specific review criteria.
+- `.codex/skills/` and `.claude/skills/` are real directories containing
+  individual symlinks to shared `skills/<name>/` implementations.
+- `scripts/build-issues-index.sh` documents the safer reserved-key parsing
+  behavior.
+
+Verification run:
+
+- `test -L CLAUDE.md && [ "$(readlink CLAUDE.md)" = "AGENTS.md" ]`
+- `test -d .codex/skills && test ! -L .codex/skills`
+- `test -d .claude/skills && test ! -L .claude/skills`
+- broken skill-link check printed nothing.
+- expected skill-link list comparisons passed with no diff.
+- `scripts/build-epics-index.sh`
+- `scripts/build-issues-index.sh`
+- `bash -n scripts/build-epics-index.sh scripts/build-issues-index.sh`
+- `rg -n "Never change code unless explicitly asked|cargo fmt|Helix or Vim behavior|helix-term|helix-view|helix-core|runtime/|book/|docs/" AGENTS.md`
+  confirmed Velix-specific guidance survived.
+- `git diff --name-status -- issues ':!issues/0009-import-termsurf-workflow' ':!issues/README.md'`
+  printed nothing.
+- before/after `find issues -mindepth 2 -maxdepth 2 -type f | sort` comparison
+  showed no historical issue files were renamed or removed.
+- `rg -n "TermSurf|termsurf|Ghostty|Chromium|WebKit|Roamium|Surfari|Zig|Nerd Font" AGENTS.md skills epics .claude/agents/adversarial-reviewer.md`
+  produced no matches.
+- `prettier --write --prose-wrap always --print-width 80` on edited Markdown
+  files.
+
+## Conclusion
+
+Velix now has the same workflow architecture shape as TermSurf: concise
+top-level routing in `AGENTS.md`, reusable workflow skills, explicit review-mode
+metadata for future issues, per-agent skill symlink directories, and an epic
+planning/index layer. Historical issue and experiment files were left in place.
+
+Any future workflow gaps should be handled in a separate issue or experiment.
+
+## Completion Review
+
+Codex adversarial reviewer, fresh context: **Changes required**.
+
+Required finding and resolution:
+
+- The result conclusion leaked an unscoped product-release follow-up by
+  mentioning a Homebrew publishing epic or issue. Accepted. Replaced it with a
+  neutral workflow-only follow-up.
+
+Re-review: **Approved**.

@@ -17,6 +17,8 @@ for dir in "$ISSUES_DIR"/*/; do
   basename="$(basename "$dir")"
   num="${basename%%-*}"
 
+  # Parse frontmatter. Anchor on reserved keys plus '=' so additive keys like
+  # status_note cannot be misread as reserved status/opened/closed values.
   frontmatter=$(awk '/^[+][+][+]$/{n++; next} n==1{print} n==2{exit}' "$readme")
   status=$(echo "$frontmatter" | grep -E '^status[[:space:]]*=' | sed 's/.*"\(.*\)"/\1/' || true)
   opened=$(echo "$frontmatter" | grep -E '^opened[[:space:]]*=' | sed 's/.*"\(.*\)"/\1/' || true)
