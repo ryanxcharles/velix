@@ -67,6 +67,23 @@ inspect TermSurf's release flow for useful guardrails: package-only validation
 before publish, SHA updates, clean tap checkout checks, explicit publish mode,
 and post-publish smoke tests.
 
+Additional findings before Experiment 1:
+
+- Homebrew's upstream Helix formula is source-based, sets
+  `HELIX_DEFAULT_RUNTIME` at build time, runs `cargo install` with
+  `path: "helix-term"`, installs `runtime` under `libexec`, and verifies with
+  `hx --health`.
+- Velix currently inherits workspace version `25.7.1`, and
+  `helix-loader/build.rs` formats versions using Helix calver assumptions. A
+  literal workspace version `0.1.0` would currently print as `0.01`, so release
+  identity must be fixed before publishing.
+- Runtime grammars are not tracked in git. A source archive containing only
+  committed files would include themes and queries but no built grammars, so the
+  package contract must explicitly include a grammar strategy before publishing.
+- Publication should be split from local/package-only validation so a broken
+  `v0.1.0` tag and tap formula are not made public before install behavior is
+  proven.
+
 ## Proposed Solution
 
 Design and implement the release in experiments, one step at a time:
@@ -82,6 +99,11 @@ Design and implement the release in experiments, one step at a time:
 - verify `brew tap astrohackerlabs/velix` or the correct tap command,
   `brew install velix`, and `vlx --version`;
 - record exact install, upgrade, uninstall, and smoke-test evidence.
+
+## Experiments
+
+- [Experiment 1: Prepare local 0.1.0 Homebrew release](exp-0001-publish-0-1-0-homebrew.md)
+  - **Designed**
 
 ## Constraints
 
