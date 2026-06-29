@@ -2,8 +2,9 @@
 
 ## Open
 
-| #   | Title | Opened |
-| --- | ----- | ------ |
+| #                                               | Title                    | Opened     |
+| ----------------------------------------------- | ------------------------ | ---------- |
+| [0009](0009-import-termsurf-workflow/README.md) | Import TermSurf Workflow | 2026-06-29 |
 
 ## Closed
 
