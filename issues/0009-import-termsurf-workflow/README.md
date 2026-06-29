@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-29"
+closed = "2026-06-29"
 workflow = "issues-and-experiments"
 review_mode = "same-agent"
 +++
@@ -52,3 +53,14 @@ The migration should:
 
 - [Experiment 1: Import TermSurf workflow files](01-import-termsurf-workflow-files.md) -
   **Pass**
+
+## Conclusion
+
+Velix's workflow files now match the TermSurf workflow architecture while
+preserving Velix-specific project guidance. The repo has concise `AGENTS.md`
+routing, workflow skills for issues, experiments, reviews, and epics, per-agent
+skill symlink directories for Codex and Claude, an `epics/` planning layer, and
+an epic index generator.
+
+Historical issue and experiment files were not migrated, renamed, rewritten, or
+retrofitted.
