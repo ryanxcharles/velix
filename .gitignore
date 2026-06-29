@@ -6,3 +6,4 @@ runtime/grammars
 .DS_Store
 logs/
 vendor/
+dist/

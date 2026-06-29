@@ -103,7 +103,7 @@ Design and implement the release in experiments, one step at a time:
 ## Experiments
 
 - [Experiment 1: Prepare local 0.1.0 Homebrew release](exp-0001-publish-0-1-0-homebrew.md)
-  - **Designed**
+  - **Pass**
 
 ## Constraints
 
