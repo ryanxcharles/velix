@@ -1,6 +1,7 @@
 +++
-status = "open"
+status = "closed"
 opened = "2026-06-29"
+closed = "2026-06-29"
 workflow = "issues-and-experiments"
 review_mode = "external-claude"
 review_routing = "orthogonal-review"
@@ -134,3 +135,43 @@ This issue is complete when:
 - uninstall or cleanup behavior is documented or verified;
 - the issue records the release URLs, tap commit, installed binary path, and
   verification commands.
+
+## Conclusion
+
+Velix `0.1.0` is published to Homebrew.
+
+Release state:
+
+- Source repo: `https://github.com/astrohackerlabs/velix`
+- Release tag: `v0.1.0`
+- Release URL: `https://github.com/astrohackerlabs/velix/releases/tag/v0.1.0`
+- Release asset:
+  `https://github.com/astrohackerlabs/velix/releases/download/v0.1.0/velix-0.1.0-arm64-apple-darwin.tar.gz`
+- Release asset SHA256:
+  `2187b6f549204b6e43aeea1d6c08a02501d5014bf1a01cd9b1d0a79aad08aec0`
+- Tap repo: `https://github.com/astrohackerlabs/homebrew-velix`
+- Tap commit: `3159656 Publish Velix 0.1.0 formula`
+- Installed binary: `/opt/homebrew/bin/vlx`
+- Installed runtime: `/opt/homebrew/Cellar/velix/0.1.0/libexec/runtime`
+
+The verified public install flow is:
+
+```bash
+brew tap astrohackerlabs/velix
+brew install astrohackerlabs/velix/velix
+vlx --version
+```
+
+`vlx --version` reports `velix 0.1.0`. `vlx --health rust` verified tree-sitter
+parser and query support, and `brew test astrohackerlabs/velix/velix` passed.
+
+Cleanup behavior was verified as part of the clean public install: the prior
+local `velix` install and local tap were removed, the GitHub tap was freshly
+tapped, and the formula was installed from
+`https://github.com/astrohackerlabs/homebrew-velix`.
+
+The first Homebrew release is intentionally macOS arm64 only because the release
+artifact bundles macOS arm64 grammar libraries. Future release work should
+reduce that coupling by generating the public formula directly from the release
+script, publishing per-platform artifacts, or building grammars during formula
+installation.

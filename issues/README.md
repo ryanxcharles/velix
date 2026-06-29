@@ -2,14 +2,14 @@
 
 ## Open
 
-| #                                                | Title                     | Opened     |
-| ------------------------------------------------ | ------------------------- | ---------- |
-| [0010](0010-publish-0-1-0-to-homebrew/README.md) | Publish 0.1.0 to Homebrew | 2026-06-29 |
+| #   | Title | Opened |
+| --- | ----- | ------ |
 
 ## Closed
 
 | #                                                           | Title                                | Opened     | Closed     |
 | ----------------------------------------------------------- | ------------------------------------ | ---------- | ---------- |
+| [0010](0010-publish-0-1-0-to-homebrew/README.md)            | Publish 0.1.0 to Homebrew            | 2026-06-29 | 2026-06-29 |
 | [0009](0009-import-termsurf-workflow/README.md)             | Import TermSurf Workflow             | 2026-06-29 | 2026-06-29 |
 | [0008](0008-cli-velix-identity/README.md)                   | CLI Velix identity                   | 2026-06-28 | 2026-06-28 |
 | [0007](0007-rename-binary-to-vlx/README.md)                 | Rename binary to vlx                 | 2026-06-28 | 2026-06-28 |
